@@ -1,8 +1,9 @@
 'use strict';
 
+var client = require('cheerio-httpcli');
+
 var fetchReviewFromAppStore = function (id) {
   var
-    client = require('cheerio-httpcli'),
     reviews = [],
     RSS = "https://itunes.apple.com/jp/rss/customerreviews/id=" + id + "/xml",
     isFinished = false;
@@ -48,4 +49,18 @@ var fetchReviewFromAppStore = function (id) {
   });
 }
 
+var fetchReviewFromGooglePlay = function (id) {
+  var
+    reviews = [],
+    URL = "https://play.google.com/store/apps/details?id=" + id;
+
+    client.fetch(URL).then(function(result) {
+
+    });
+    return new Promise(function(resolve, reject) {
+      resolve("実装中");
+    });
+}
+
 module.exports.fetchReviewFromAppStore = fetchReviewFromAppStore;
+module.exports.fetchReviewFromGooglePlay = fetchReviewFromGooglePlay;

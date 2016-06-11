@@ -1,7 +1,10 @@
-var scraper = require('./scraper');
+var 
+  scraper = require('./scraper'),
+  appStoreId = 982091927,
+  googlePlayId = "jp.co.fujixerox.mcopy";
 
-var id = 982091927;
-scraper.fetchReviewFromAppStore(id).then(function(reviews) {
+scraper.fetchReviewFromAppStore(appStoreId).then(function(reviews) {
+  console.log("■AppStore")
   reviews.forEach(function(review) {
     console.log("-----------------------------------------------------------");
     console.log("date: " + review.date);
@@ -11,6 +14,11 @@ scraper.fetchReviewFromAppStore(id).then(function(reviews) {
     console.log("version: " + review.version);
     console.log("author: " + review.author);
   });
+  return scraper.fetchReviewFromGooglePlay(googlePlayId);
+}).then(function(review) {
+  console.log("");
+  console.log("■GooglePlay");
+  console.log(review);
 }).catch(function(error) {
   console.log("Error:", error);
 });
