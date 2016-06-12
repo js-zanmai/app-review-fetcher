@@ -1,0 +1,14 @@
+{
+  "appStore": {
+    "id": "982091927", 
+    "name": ""
+  },
+  "googlePlay": {
+    "id": "hoge", 
+    "name": ""
+  },
+  "mail": {
+    "from": "", 
+    "to": ""
+  }
+}

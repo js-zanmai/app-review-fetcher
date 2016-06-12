@@ -38,7 +38,7 @@ module.exports.fetchReviewFromAppStore = function (id) {
         // 次のページが最終ページであればフラグを立てておき、クロールを止めるようにする。
         isFinished = nextPage == lastPage;
         // linkタグをクロールすることで過去のレビューを再帰的に取得する。
-        return fetchRecursive($("link[rel=next]").attr("href"));
+        return fetchRecursive(nextPage);
       }).catch(function(error) {
         reject(error);
       });
@@ -50,15 +50,16 @@ module.exports.fetchReviewFromAppStore = function (id) {
   });
 }
 
+// TODO 未実装。GooglePlayはHTMLをスクレイピングしないとダメっぽい。
 module.exports.fetchReviewFromGooglePlay = function (id) {
   var
     reviews = [],
     URL = "https://play.google.com/store/apps/details?id=" + id;
+  
+  client.fetch(URL).then(function(result) {
 
-    client.fetch(URL).then(function(result) {
-
-    });
-    return new Promise(function(resolve, reject) {
-      resolve(reviews);
-    });
+  });
+  return new Promise(function(resolve, reject) {
+    resolve(reviews);
+  });
 }

@@ -1,10 +1,12 @@
+var config = require('./config');
+
 function send(subject, mailBody) {
   var 
     nodemailer = require('nodemailer'),
     transporter = nodemailer.createTransport(''),// TODO
     mailOptions = {
-      from: '',
-      to: '',
+      from: config.mail.from,
+      to: config.mail.to,
       subject: subject,
       text: mailBody
     };
@@ -13,11 +15,9 @@ function send(subject, mailBody) {
 }
 
 function main() {
-  var
-    scraper = require('./scraper'),
-    appStoreId = 982091927;
+  var scraper = require('./scraper');
 
-  return scraper.fetchReviewFromAppStore(appStoreId).then(function(reviews) {
+  return scraper.fetchReviewFromAppStore(config.appStore.id).then(function(reviews) {
     var 
       LF = "\n",
       mailBody = "■ AppStore" + LF,

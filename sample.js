@@ -1,9 +1,8 @@
 var 
   scraper = require('./scraper'),
-  appStoreId = 982091927,
-  googlePlayId = "hoge";
-
-scraper.fetchReviewFromAppStore(appStoreId).then(function(reviews) {
+  config = require('./config');
+ 
+scraper.fetchReviewFromAppStore(config.appStore.id).then(function(reviews) {
   console.log("■ AppStore")
   reviews.forEach(function(review) {
     console.log("-----------------------------------------------------------");
@@ -14,7 +13,7 @@ scraper.fetchReviewFromAppStore(appStoreId).then(function(reviews) {
     console.log("version: " + review.version);
     console.log("author: " + review.author);
   });
-  return scraper.fetchReviewFromGooglePlay(googlePlayId);
+  return scraper.fetchReviewFromGooglePlay(config.googlePlay.id);
 }).then(function(reviews) {
   console.log("■ GooglePlay")
   reviews.forEach(function(review) {
