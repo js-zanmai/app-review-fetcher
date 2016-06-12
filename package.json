@@ -10,6 +10,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "cheerio-httpcli": "^0.6.8"
+    "cheerio-httpcli": "^0.6.8",
+    "nodemailer": "^2.4.2"
   }
 }

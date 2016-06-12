@@ -2,7 +2,7 @@
 
 var client = require('cheerio-httpcli');
 
-var fetchReviewFromAppStore = function (id) {
+module.exports.fetchReviewFromAppStore = function (id) {
   var
     reviews = [],
     RSS = "https://itunes.apple.com/jp/rss/customerreviews/id=" + id + "/xml",
@@ -13,10 +13,11 @@ var fetchReviewFromAppStore = function (id) {
       return client.fetch(url).then(function(result) {
         var
           $ = result.$,
+          firstPage = $("link[rel=first]").attr("href"),
           nextPage = $("link[rel=next]").attr("href"),
           lastPage = $("link[rel=last]").attr("href"),
           entries = $("feed > entry");
-
+        
         entries.each(function(id) {
           var entry = $(this);
           if (id == 0) { return; }// 最初のentryタグは関係ないのでスキップする。
@@ -30,14 +31,14 @@ var fetchReviewFromAppStore = function (id) {
           });
         });
 
-        if (isFinished) {
+        if (isFinished || !nextPage || (firstPage == lastPage)) {
           return reviews;
-        } else {
-          // 次のページが最終ページであればフラグを立てておき、クロールを止めるようにする。
-          isFinished = nextPage == lastPage;
-          // linkタグをクロールすることで過去のレビューを再帰的に取得する。
-          return fetchRecursive($("link[rel=next]").attr("href"));
         }
+        
+        // 次のページが最終ページであればフラグを立てておき、クロールを止めるようにする。
+        isFinished = nextPage == lastPage;
+        // linkタグをクロールすることで過去のレビューを再帰的に取得する。
+        return fetchRecursive($("link[rel=next]").attr("href"));
       }).catch(function(error) {
         reject(error);
       });
@@ -49,7 +50,7 @@ var fetchReviewFromAppStore = function (id) {
   });
 }
 
-var fetchReviewFromGooglePlay = function (id) {
+module.exports.fetchReviewFromGooglePlay = function (id) {
   var
     reviews = [],
     URL = "https://play.google.com/store/apps/details?id=" + id;
@@ -58,9 +59,6 @@ var fetchReviewFromGooglePlay = function (id) {
 
     });
     return new Promise(function(resolve, reject) {
-      resolve("実装中");
+      resolve(reviews);
     });
 }
-
-module.exports.fetchReviewFromAppStore = fetchReviewFromAppStore;
-module.exports.fetchReviewFromGooglePlay = fetchReviewFromGooglePlay;
