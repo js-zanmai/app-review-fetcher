@@ -5,7 +5,7 @@
     "semi": [2, "always"],
     "quotes": [2, "single"],
     "no-console": [0],
-    "no-multi-spaces": 2,
+    "no-multi-spaces": [2],
     "no-var": [2],
     "no-unused-vars": [1]
   },

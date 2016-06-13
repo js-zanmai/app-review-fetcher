@@ -1,11 +1,11 @@
 const client = require('cheerio-httpcli');
 
 function fetchReviewFromAppStore(id) {
-  const RSS = 'https://itunes.apple.com/jp/rss/customerreviews/id=' + id + '/xml';
-  let reviews = [];
-  let isFinished = false;
-  
   return new Promise(function(resolve, reject) {
+    const RSS = 'https://itunes.apple.com/jp/rss/customerreviews/id=' + id + '/xml';
+    let reviews = [];
+    let isFinished = false;
+
     function fetchRecursive(url) {
       return client.fetch(url).then(function(result) {
         const $ = result.$;
@@ -48,13 +48,11 @@ function fetchReviewFromAppStore(id) {
 
 // TODO 未実装。GooglePlayはHTMLをスクレイピングしないとダメっぽい。
 function fetchReviewFromGooglePlay(id) {
-  const URL = 'https://play.google.com/store/apps/details?id=' + id;
-  let reviews = [];
-  
-  client.fetch(URL).then(function(result) {
-
-  });
   return new Promise(function(resolve, reject) {
+    const URL = 'https://play.google.com/store/apps/details?id=' + id;
+    let reviews = [];
+    client.fetch(URL).then(function(result) {
+    });
     resolve(reviews);
   });
 }
