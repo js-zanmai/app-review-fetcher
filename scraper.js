@@ -1,33 +1,29 @@
-'use strict';
+const client = require('cheerio-httpcli');
 
-var client = require('cheerio-httpcli');
-
-module.exports.fetchReviewFromAppStore = function (id) {
-  var
-    reviews = [],
-    RSS = "https://itunes.apple.com/jp/rss/customerreviews/id=" + id + "/xml",
-    isFinished = false;
+function fetchReviewFromAppStore(id) {
+  const RSS = 'https://itunes.apple.com/jp/rss/customerreviews/id=' + id + '/xml';
+  let reviews = [];
+  let isFinished = false;
   
   return new Promise(function(resolve, reject) {
     function fetchRecursive(url) {
       return client.fetch(url).then(function(result) {
-        var
-          $ = result.$,
-          firstPage = $("link[rel=first]").attr("href"),
-          nextPage = $("link[rel=next]").attr("href"),
-          lastPage = $("link[rel=last]").attr("href"),
-          entries = $("feed > entry");
+        const $ = result.$;
+        const firstPage = $('link[rel=first]').attr('href');
+        const nextPage = $('link[rel=next]').attr('href');
+        const lastPage = $('link[rel=last]').attr('href');
+        const entries = $('feed > entry');
         
         entries.each(function(id) {
-          var entry = $(this);
+          const entry = $(this);
           if (id == 0) { return; }// 最初のentryタグは関係ないのでスキップする。
           reviews.push({
-            date: entry.find("updated").text().replace(/(.*?)-(.*?)-(.*?)T(.*?)-.*/, "$1/$2/$3 $4"),
-            title: entry.find("title").text(),
-            content: entry.find("content[type=text]").text(),
-            rating: entry.find("im\\:rating").text(),// :はエスケープしないとエラーになるので注意。
-            version: entry.find("im\\:version").text(),
-            author: entry.find("author > name").text()
+            date: entry.find('updated').text().replace(/(.*?)-(.*?)-(.*?)T(.*?)-.*/, '$1/$2/$3 $4'),
+            title: entry.find('title').text(),
+            content: entry.find('content[type=text]').text(),
+            rating: entry.find('im\\:rating').text(),// :はエスケープしないとエラーになるので注意。
+            version: entry.find('im\\:version').text(),
+            author: entry.find('author > name').text()
           });
         });
 
@@ -51,10 +47,9 @@ module.exports.fetchReviewFromAppStore = function (id) {
 }
 
 // TODO 未実装。GooglePlayはHTMLをスクレイピングしないとダメっぽい。
-module.exports.fetchReviewFromGooglePlay = function (id) {
-  var
-    reviews = [],
-    URL = "https://play.google.com/store/apps/details?id=" + id;
+function fetchReviewFromGooglePlay(id) {
+  const URL = 'https://play.google.com/store/apps/details?id=' + id;
+  let reviews = [];
   
   client.fetch(URL).then(function(result) {
 
@@ -63,3 +58,6 @@ module.exports.fetchReviewFromGooglePlay = function (id) {
     resolve(reviews);
   });
 }
+
+module.exports.fetchReviewFromAppStore = fetchReviewFromAppStore;
+module.exports.fetchReviewFromGooglePlay = fetchReviewFromGooglePlay;
