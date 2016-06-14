@@ -1,21 +1,24 @@
-const client = require('cheerio-httpcli');
+/*globals Promise:true*/
+var client = require('cheerio-httpcli');
 
 function fetchReviewFromAppStore(id) {
   return new Promise(function(resolve, reject) {
-    const RSS = 'https://itunes.apple.com/jp/rss/customerreviews/id=' + id + '/xml';
-    let reviews = [];
-    let isFinished = false;
+    var
+      RSS = 'https://itunes.apple.com/jp/rss/customerreviews/id=' + id + '/xml',
+      reviews = [],
+      isFinished = false;
 
     function fetchRecursive(url) {
       return client.fetch(url).then(function(result) {
-        const $ = result.$;
-        const firstPage = $('link[rel=first]').attr('href');
-        const nextPage = $('link[rel=next]').attr('href');
-        const lastPage = $('link[rel=last]').attr('href');
-        const entries = $('feed > entry');
+        var 
+          $ = result.$,
+          firstPage = $('link[rel=first]').attr('href'),
+          nextPage = $('link[rel=next]').attr('href'),
+          lastPage = $('link[rel=last]').attr('href'),
+          entries = $('feed > entry');
         
         entries.each(function(id) {
-          const entry = $(this);
+          var entry = $(this);
           if (id == 0) { return; }// 最初のentryタグは関係ないのでスキップする。
           reviews.push({
             date: entry.find('updated').text().replace(/(.*?)-(.*?)-(.*?)T(.*?)-.*/, '$1/$2/$3 $4'),
@@ -49,8 +52,9 @@ function fetchReviewFromAppStore(id) {
 // TODO 未実装。GooglePlayはHTMLをスクレイピングしないとダメっぽい。
 function fetchReviewFromGooglePlay(id) {
   return new Promise(function(resolve, reject) {
-    const URL = 'https://play.google.com/store/apps/details?id=' + id;
-    let reviews = [];
+    var 
+      URL = 'https://play.google.com/store/apps/details?id=' + id,
+      reviews = [];
     client.fetch(URL).then(function(result) {
     });
     resolve(reviews);

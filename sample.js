@@ -1,5 +1,6 @@
-const scraper = require('./scraper');
-const config = require('./config');
+var 
+  scraper = require('./scraper'),
+  config = require('./config');
  
 scraper.fetchReviewFromAppStore(config.appStore.id).then(function(reviews) {
   console.log('■ AppStore');
