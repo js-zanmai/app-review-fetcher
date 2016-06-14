@@ -1,4 +1,3 @@
-/*globals Promise:true*/
 var client = require('cheerio-httpcli');
 
 function fetchReviewFromAppStore(id) {
