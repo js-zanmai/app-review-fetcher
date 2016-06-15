@@ -1,8 +1,7 @@
-var client = require('cheerio-httpcli');
-
 function fetchReviewFromAppStore(id) {
   return new Promise(function(resolve, reject) {
     var
+      client = require('cheerio-httpcli'),
       RSS = 'https://itunes.apple.com/jp/rss/customerreviews/id=' + id + '/xml',
       reviews = [],
       isFinished = false;
@@ -48,15 +47,43 @@ function fetchReviewFromAppStore(id) {
   });
 }
 
-// TODO 未実装。GooglePlayはHTMLをスクレイピングしないとダメっぽい。
 function fetchReviewFromGooglePlay(id) {
   return new Promise(function(resolve, reject) {
     var 
+      client = require('cheerio-httpcli'),
       URL = 'https://play.google.com/store/apps/details?id=' + id,
       reviews = [];
-    client.fetch(URL).then(function(result) {
+
+    return client.fetch(URL).then(function(result) {
+      var $ = result.$;
+
+      $('div.review-link').remove();// 「全文を表示」は不要なので削除しておく。
+      $('.single-review').each(function(i, element) {
+        var 
+          reviewInfo = $(element).find('.review-info'),
+          updated = $(reviewInfo).find('.review-date').text(),// TODO 2016年5月25日 -> 2016/05/25
+          tempRating = $(reviewInfo).find('.review-info-star-rating .tiny-star').attr('aria-label'),
+          trimRatingLength = '5つ星のうち'.length,
+          rating = tempRating.substring(trimRatingLength, trimRatingLength + 1),
+          reviewBody = $(element).find('.review-body.with-review-wrapper'),
+          title = $(reviewBody).find('.review-title').text(),
+          content = $(reviewBody).text().replace(title, '').trim(),
+          author = $(element).find('.author-name > a').text();
+
+        reviews.push({
+          date: updated,
+          title: title,
+          content: content,
+          rating: rating,
+          version: '-',
+          author: author
+        });
+      });
+      
+      resolve(reviews);
+    }).catch(function(error) {
+      reject(error);
     });
-    resolve(reviews);
   });
 }
 
