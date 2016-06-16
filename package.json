@@ -11,7 +11,8 @@
   "license": "MIT",
   "dependencies": {
     "cheerio-httpcli": "^0.6.8",
-    "nodemailer": "^2.4.2"
+    "nodemailer": "^2.4.2",
+    "officegen": "^0.2.9"
   },
   "devDependencies": {
     "eslint": "^2.12.0"

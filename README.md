@@ -2,10 +2,8 @@
 
 ## 概要
 モバイルアプリのレビューを取得するスクリプトです。  
-AppStoreのみ対応。  
-GooglePlayはまだです。  
 Promiseを返すように実装しています。  
-大したプログラムではありませんが、使い方についてはsample.jsを参照してください。  
+AppStoreとGooglePlayに対応しています。  
 
 ## TODO
 * グラフ作ったり
