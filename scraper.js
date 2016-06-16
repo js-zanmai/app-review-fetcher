@@ -1,3 +1,7 @@
+function zeroPudding(val) {
+  return ('0' + val).slice(-2);
+}
+
 function fetchReviewFromAppStore(id) {
   return new Promise(function(resolve, reject) {
     var
@@ -12,12 +16,11 @@ function fetchReviewFromAppStore(id) {
           $ = result.$,
           firstPage = $('link[rel=first]').attr('href'),
           nextPage = $('link[rel=next]').attr('href'),
-          lastPage = $('link[rel=last]').attr('href'),
-          entries = $('feed > entry');
+          lastPage = $('link[rel=last]').attr('href');
         
-        entries.each(function(id) {
-          var entry = $(this);
-          if (id == 0) { return; }// 最初のentryタグは関係ないのでスキップする。
+        $('feed > entry').each(function(i, element) {
+          var entry = $(element);
+          if (i == 0) { return; }// 最初のentryタグは関係ないのでスキップする。
           reviews.push({
             date: entry.find('updated').text().replace(/(.*?)-(.*?)-(.*?)T(.*?)-.*/, '$1/$2/$3 $4'),
             title: entry.find('title').text(),
@@ -57,14 +60,13 @@ function fetchReviewFromGooglePlay(id) {
     return client.fetch(URL).then(function(result) {
       var $ = result.$;
 
-      $('div.review-link').remove();// 「全文を表示」は不要なので削除しておく。
+      $('div.review-link').remove();
       $('.single-review').each(function(i, element) {
         var 
-          reviewInfo = $(element).find('.review-info'),
-          updated = $(reviewInfo).find('.review-date').text(),// TODO 2016年5月25日 -> 2016/05/25
-          tempRating = $(reviewInfo).find('.review-info-star-rating .tiny-star').attr('aria-label'),
-          trimRatingLength = '5つ星のうち'.length,
-          rating = tempRating.substring(trimRatingLength, trimRatingLength + 1),
+          reviewInfo = $(element).find('.review-info'), 
+          tmpDate = $(reviewInfo).find('.review-date').text().match(/(.*)年(.*)月(.*)日/),
+          updated = tmpDate[1] + '/' + zeroPudding(tmpDate[2]) + '/' + zeroPudding(tmpDate[3]),
+          rating = $(reviewInfo).find('.review-info-star-rating .tiny-star').attr('aria-label').match(/5つ星のうち(.*)つ星で評価しました/)[1],
           reviewBody = $(element).find('.review-body.with-review-wrapper'),
           title = $(reviewBody).find('.review-title').text(),
           content = $(reviewBody).text().replace(title, '').trim(),
