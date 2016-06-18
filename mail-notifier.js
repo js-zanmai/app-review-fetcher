@@ -1,4 +1,6 @@
-var config = require('./config');
+var 
+  config = require('./config'),
+  util = require('./utility');
 
 function send(subject, mailBody) {
   var
@@ -20,14 +22,12 @@ function main() {
   return scraper.fetchReviewFromAppStore(config.appStore.id).then(function(reviews) {
     var
       LF = '\n',
-      now = new Date(),
-      yesterday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1),
       mailBody = '■ AppStore' + LF,
       hasNewReview = false;
 
     reviews.forEach(function(review) {
       // 昨日以降のレビューを新着レビューとして判定する。
-      if (new Date(review.date) > yesterday) {
+      if (new Date(review.date) > util.getYesterday()) {
         hasNewReview = true;
         mailBody += '-----------------------------------------------------------' + LF
                  + 'date: ' + review.date + LF

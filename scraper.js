@@ -1,11 +1,19 @@
-function zeroPudding(val) {
-  return ('0' + val).slice(-2);
+var 
+  client = require('cheerio-httpcli'),
+  util = require('./utility');
+
+function Review(date, title, content, rating, version, author) {
+  this.date = date;
+  this.title = title;
+  this.content = content;
+  this.rating = rating;
+  this.version = version;
+  this.author = author;
 }
 
 function fetchReviewFromAppStore(id) {
   return new Promise(function(resolve, reject) {
     var
-      client = require('cheerio-httpcli'),
       RSS = 'https://itunes.apple.com/jp/rss/customerreviews/id=' + id + '/xml',
       reviews = [],
       isFinished = false;
@@ -19,16 +27,17 @@ function fetchReviewFromAppStore(id) {
           lastPage = $('link[rel=last]').attr('href');
         
         $('feed > entry').each(function(i, element) {
-          var entry = $(element);
+          var 
+            entry = $(element),
+            date = entry.find('updated').text().replace(/(.*?)-(.*?)-(.*?)T(.*?)-.*/, '$1/$2/$3 $4'),
+            title = entry.find('title').text(),
+            content = entry.find('content[type=text]').text(),
+            rating = entry.find('im\\:rating').text(),// :はエスケープしないとエラーになるので注意。
+            version = entry.find('im\\:version').text(),
+            author = entry.find('author > name').text();
+
           if (i == 0) { return; }// 最初のentryタグは関係ないのでスキップする。
-          reviews.push({
-            date: entry.find('updated').text().replace(/(.*?)-(.*?)-(.*?)T(.*?)-.*/, '$1/$2/$3 $4'),
-            title: entry.find('title').text(),
-            content: entry.find('content[type=text]').text(),
-            rating: entry.find('im\\:rating').text(),// :はエスケープしないとエラーになるので注意。
-            version: entry.find('im\\:version').text(),
-            author: entry.find('author > name').text()
-          });
+          reviews.push(new Review(date, title, content, rating, version, author));
         });
 
         if (isFinished || !nextPage || (firstPage == lastPage)) {
@@ -53,7 +62,6 @@ function fetchReviewFromAppStore(id) {
 function fetchReviewFromGooglePlay(id) {
   return new Promise(function(resolve, reject) {
     var 
-      client = require('cheerio-httpcli'),
       URL = 'https://play.google.com/store/apps/details?id=' + id,
       reviews = [];
 
@@ -65,21 +73,14 @@ function fetchReviewFromGooglePlay(id) {
         var 
           reviewInfo = $(element).find('.review-info'), 
           tmpDate = $(reviewInfo).find('.review-date').text().match(/(.*)年(.*)月(.*)日/),
-          updated = tmpDate[1] + '/' + zeroPudding(tmpDate[2]) + '/' + zeroPudding(tmpDate[3]),
+          updated = tmpDate[1] + '/' + util.zeroPadding(tmpDate[2], 2) + '/' + util.zeroPadding(tmpDate[3], 2),
           rating = $(reviewInfo).find('.review-info-star-rating .tiny-star').attr('aria-label').match(/5つ星のうち(.*)つ星で評価しました/)[1],
           reviewBody = $(element).find('.review-body.with-review-wrapper'),
           title = $(reviewBody).find('.review-title').text(),
           content = $(reviewBody).text().replace(title, '').trim(),
           author = $(element).find('.author-name > a').text();
-
-        reviews.push({
-          date: updated,
-          title: title,
-          content: content,
-          rating: rating,
-          version: '-',
-          author: author
-        });
+        
+        reviews.push(new Review(updated, title, content, rating, '-', author));
       });
       
       resolve(reviews);
