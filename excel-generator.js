@@ -11,7 +11,8 @@ function main() {
     worksheet.name = sheetName;
     worksheet.data[0] = ['date', 'title', 'content', 'rating', 'version', 'author'];
     reviews.forEach(function(review, index) {
-      worksheet.data[index + 1] = [review.date, review.title, review.content, review.rating, review.version, review.author];
+      worksheet.data[index + 1] = 
+      [review.date, review.title, review.content, parseInt(review.rating, 10), review.version, review.author];
     });
   }
 
