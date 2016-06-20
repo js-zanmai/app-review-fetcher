@@ -4,5 +4,5 @@ module.exports.zeroPadding = function(number, length) {
 
 module.exports.getYesterday = function() {
   var now = new Date();
-  return Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+  return new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
 };

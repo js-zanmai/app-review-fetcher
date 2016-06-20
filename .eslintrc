@@ -19,7 +19,8 @@
     "space-before-blocks": 2
   },
   "env": {
-    "node": true
+    "node": true,
+    "mocha": true
   },
   "globals": {
     "Promise": true
