@@ -32,11 +32,14 @@ function fetchReviewFromAppStore(id) {
             date = entry.find('updated').text().replace(/(.*?)-(.*?)-(.*?)T(.*?)-.*/, '$1/$2/$3 $4'),
             title = entry.find('title').text(),
             content = entry.find('content[type=text]').text(),
-            rating = entry.find('im\\:rating').text(),// :はエスケープしないとエラーになるので注意。
+            rating = entry.find('im\\:rating').text(), // :はエスケープしないとエラーになるので注意。
             version = entry.find('im\\:version').text(),
             author = entry.find('author > name').text();
 
-          if (i == 0) { return; }// 最初のentryタグは関係ないのでスキップする。
+          if (i == 0) { 
+            // 最初のentryタグは関係ないのでスキップする。
+            return; 
+          }
           reviews.push(new Review(date, title, content, rating, version, author));
         });
 

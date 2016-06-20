@@ -5,7 +5,7 @@ var
 function send(subject, mailBody) {
   var
     nodemailer = require('nodemailer'),
-    transporter = nodemailer.createTransport(''),// TODO
+    transporter = nodemailer.createTransport(''), // TODO
     mailOptions = {
       from: config.mail.from,
       to: config.mail.to,
@@ -40,7 +40,7 @@ function main() {
   
     if (hasNewReview) {
       console.log(mailBody);
-      //return send("AppStore新着レビュー", mailBody);
+      // return send("AppStore新着レビュー", mailBody);
     } else {
       console.log('新着レビューはありませんでした。');
     }
