@@ -15,6 +15,10 @@ npm run build
 ```
 npm run test
 ```
+If you want to measure the coverage,  
+```
+npm run test-cov
+```
 
 ## Run
 ```
