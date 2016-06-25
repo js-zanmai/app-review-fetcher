@@ -3,6 +3,7 @@ import util from './utility';
 import Review from './review';
 
 export default class Scraper {
+
   fetchReviewFromAppStore(id) {
     return new Promise((resolve, reject) => {
       const RSS = 'https://itunes.apple.com/jp/rss/customerreviews/id=' + id + '/xml';
@@ -79,4 +80,5 @@ export default class Scraper {
       });
     });
   }
+  
 }

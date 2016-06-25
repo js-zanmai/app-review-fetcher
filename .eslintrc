@@ -31,8 +31,5 @@
     "node": true,
     "mocha": true
   },
-  "globals": {
-    "Promise": true
-  },
   "extends": "eslint:recommended"
 }

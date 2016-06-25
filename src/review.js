@@ -1,4 +1,5 @@
 export default class Review {
+
   constructor(date, title, content, rating, version, author) {
     this.date = date;
     this.title = title;
@@ -7,4 +8,5 @@ export default class Review {
     this.version = version;
     this.author = author;
   }
+  
 }
