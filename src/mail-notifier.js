@@ -1,5 +1,5 @@
 import config from '../config';
-import * as util from './utility';
+import util from './utility';
 import Scraper from './scraper';
 
 const scraper = new Scraper();

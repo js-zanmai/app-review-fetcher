@@ -1,5 +1,5 @@
 import client from 'cheerio-httpcli';
-import * as util from './utility';
+import util from './utility';
 import Review from './review';
 
 export default class Scraper {
@@ -63,7 +63,7 @@ export default class Scraper {
         $('.single-review').each((i, element) => {
           const reviewInfo = $(element).find('.review-info'); 
           const tmpDate = $(reviewInfo).find('.review-date').text().match(/(.*)年(.*)月(.*)日/);
-          const updated = tmpDate[1] + '/' + util.zeroPadding(tmpDate[2], 2) + '/' + util.zeroPadding(tmpDate[3], 2);
+          const updated = tmpDate[1] + '/' + util.zeroPadding(tmpDate[2]) + '/' + util.zeroPadding(tmpDate[3]);
           const rating = $(reviewInfo).find('.review-info-star-rating .tiny-star').attr('aria-label').match(/5つ星のうち(.*)つ星で評価しました/)[1];
           const reviewBody = $(element).find('.review-body.with-review-wrapper');
           const title = $(reviewBody).find('.review-title').text();
