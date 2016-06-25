@@ -1,10 +1,22 @@
 # app-review-fetcher
+Node.js application to scrape mobile application data from the App store or Google Play store.
 
-## 概要
-モバイルアプリのレビューを取得するスクリプトです。  
-Promiseを返すように実装しています。  
-AppStoreとGooglePlayに対応しています。  
+## Usage
+### Installation
+1. npm install -g babel eslint mocha  
+2. npm install 
 
-## TODO
-* グラフ作ったり
-* 新着レビューがあったらメール通知とか
+### Build
+```
+npm run build
+```
+
+### Unit Test
+```
+npm run test
+```
+
+## Run
+```
+node dist/excel-generator.js
+```
