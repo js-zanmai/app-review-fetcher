@@ -19,12 +19,12 @@ const sendMail = (subject, mailBody) => {
 scraper.fetchReviewFromAppStore(config.appStore.id).then((reviews) => {
   const LF = '\n';
   let mailBody = '■ AppStore' + LF;
-  let hasNewReview = false;
+  let hasNewReviews= false;
 
   reviews.forEach((review) => {
     // 昨日以降のレビューを新着レビューとして判定する。
     if (new Date(review.date) > util.getYesterday()) {
-      hasNewReview = true;
+      hasNewReviews = true;
       mailBody += '-----------------------------------------------------------' + LF
                 + 'date: ' + review.date + LF
                 + 'title: ' + review.title + LF
@@ -34,7 +34,7 @@ scraper.fetchReviewFromAppStore(config.appStore.id).then((reviews) => {
     }
   });
 
-  if (hasNewReview) {
+  if (hasNewReviews) {
     console.log(mailBody);
     // return send("AppStore新着レビュー", mailBody);
   } else {

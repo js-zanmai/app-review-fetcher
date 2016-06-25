@@ -3,6 +3,6 @@ export const zeroPadding = (number, length) => {
 };
 
 export const getYesterday = () => {
-  var now = new Date();
+  const now = new Date();
   return new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
 };
