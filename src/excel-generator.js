@@ -1,31 +1,40 @@
+import 'babel-polyfill';// for async/await
 import Scraper from './scraper';
 import config from '../config';
 import officegen from 'officegen';
 import fs from 'fs';
 
-const scraper = new Scraper(); 
-const xlsx = officegen('xlsx');
-const writeWorksheet = (sheetName, reviews) => {
-  const worksheet = xlsx.makeNewSheet();
-  worksheet.name = sheetName;
-  worksheet.data[0] = ['date', 'title', 'content', 'rating', 'version', 'author'];
-  reviews.forEach((review, index) => {
-    worksheet.data[index + 1] = 
-    [review.date, review.title, review.content, parseInt(review.rating, 10), review.version, review.author];
-  });
-};
+async function createExcelReportAsync(appInfoList, fetchFunc, fileNameWithoutExtension) {
+  try {
+    const xlsx = officegen('xlsx');
 
-scraper.fetchReviewFromAppStore(config.appStore.id).then((reviews) => {
-  writeWorksheet('AppStore', reviews);
-  return scraper.fetchReviewFromGooglePlay(config.googlePlay.id);
-}).then((reviews) => {
-  writeWorksheet('GooglePlay', reviews);
-}).then(() => {
-  const out = fs.createWriteStream('AppReviews.xlsx');
-  out.on('error', (error) => {
-    console.log(error);
-  });
-  xlsx.generate(out);
-}).catch((error) => {
-  console.log('Error:', error);
-});
+    for(const appInfo of appInfoList) {
+      const reviews = await fetchFunc(appInfo.id);
+      const worksheet = xlsx.makeNewSheet();
+      worksheet.name = appInfo.name;
+      worksheet.data[0] = ['date', 'title', 'content', 'rating', 'version', 'author'];
+      reviews.forEach((review, index) => {  
+        worksheet.data[index + 1] = 
+        [review.date, review.title, review.content, parseInt(review.rating, 10), review.version, review.author];
+      });
+    }
+   
+    const out = fs.createWriteStream(__dirname + '/../out/' + fileNameWithoutExtension + '.xlsx');
+    out.on('error', (error) => {
+      console.log(error);
+    });
+    xlsx.generate(out);
+  } catch (error) {
+    console.log('Error:', error);
+  }
+}
+
+async function main() {
+  const scraper = new Scraper();
+  await Promise.all([
+    createExcelReportAsync(config.appStore, scraper.fetchReviewFromAppStore, 'AppStoreReviews'),
+    createExcelReportAsync(config.googlePlay, scraper.fetchReviewFromGooglePlay, 'GooglePlayReviews')
+  ]);
+}
+
+main();
