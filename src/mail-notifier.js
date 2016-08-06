@@ -24,14 +24,14 @@ async function sendMailAsnc(subject, mailBody) {
   await transporter.sendMail(mailOptions);
 }
 
-async function reportAsync(appInfoList, fetchFunc, mailSubject) {
+async function reportAsync(appInfoList, asyncFunc, mailSubject) {
   try {
     let mailBody = '';
     let hasNewReviews= false;
     const LF = '\n';
   
     for(const appInfo of appInfoList) {
-      const reviews = await fetchFunc(appInfo.id);
+      const reviews = await asyncFunc(appInfo.id);
       // 昨日以降のレビューを新着レビューとして判定する。
       const reviewsOfToday = reviews.filter(isTodaysReview);
       if (reviewsOfToday.length > 0) {

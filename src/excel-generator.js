@@ -4,18 +4,17 @@ import config from '../config';
 import officegen from 'officegen';
 import fs from 'fs';
 
-async function createExcelReportAsync(appInfoList, fetchFunc, fileNameWithoutExtension) {
+async function createExcelReportAsync(appInfoList, asyncFunc, fileNameWithoutExtension) {
   try {
     const xlsx = officegen('xlsx');
 
     for(const appInfo of appInfoList) {
-      const reviews = await fetchFunc(appInfo.id);
+      const reviews = await asyncFunc(appInfo.id);
       const worksheet = xlsx.makeNewSheet();
       worksheet.name = appInfo.name;
       worksheet.data[0] = ['date', 'title', 'content', 'rating', 'version', 'author'];
       reviews.forEach((review, index) => {  
-        worksheet.data[index + 1] = 
-        [review.date, review.title, review.content, parseInt(review.rating, 10), review.version, review.author];
+        worksheet.data[index + 1] = [review.date, review.title, review.content, parseInt(review.rating, 10), review.version, review.author];
       });
     }
    
