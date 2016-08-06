@@ -33,7 +33,7 @@ async function reportAsync(appInfoList, fetchFunc, mailSubject) {
     for(const appInfo of appInfoList) {
       const reviews = await fetchFunc(appInfo.id);
       // 昨日以降のレビューを新着レビューとして判定する。
-      const reviewsOfToday = reviews.filter(isTodaysReview) ;
+      const reviewsOfToday = reviews.filter(isTodaysReview);
       if (reviewsOfToday.length > 0) {
         mailBody += LF + '■' + appInfo.name + LF;
         reviewsOfToday.forEach((review) => {
