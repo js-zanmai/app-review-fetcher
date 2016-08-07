@@ -6,7 +6,7 @@ export default class Scraper {
 
   fetchReviewFromAppStore(id) {
     return new Promise((resolve, reject) => {
-      const RSS = 'https://itunes.apple.com/jp/rss/customerreviews/id=' + id + '/xml';
+      const RSS = `https://itunes.apple.com/jp/rss/customerreviews/id=${id}/xml`;
       const reviews = [];
       let isFinished = false;
 
@@ -54,7 +54,7 @@ export default class Scraper {
 
   fetchReviewFromGooglePlay(id) {
     return new Promise((resolve, reject) => {
-      const URL = 'https://play.google.com/store/apps/details?id=' + id;
+      const URL = `https://play.google.com/store/apps/details?id=${id}`;
       const reviews = [];
 
       return client.fetch(URL).then((result) => {

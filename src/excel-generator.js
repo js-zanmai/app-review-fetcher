@@ -18,7 +18,7 @@ async function createExcelReportAsync(appInfoList, asyncFunc, fileNameWithoutExt
       });
     }
    
-    const out = fs.createWriteStream(__dirname + '/../out/' + fileNameWithoutExtension + '.xlsx');
+    const out = fs.createWriteStream(`${__dirname}/../out/${fileNameWithoutExtension}.xlsx`);
     out.on('error', (error) => {
       console.log(error);
     });

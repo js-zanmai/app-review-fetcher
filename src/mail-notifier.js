@@ -35,15 +35,14 @@ async function reportAsync(appInfoList, asyncFunc, mailSubject) {
       });
 
       if (reviewsOfToday.length > 0) {
-        mailBody += LF + '■' + appInfo.name + LF;
+        mailBody += `${LF}■${appInfo.name}${LF}`;
         reviewsOfToday.forEach((review) => {
           hasNewReviews = true;
-          mailBody += 'date: ' + review.date + LF
-                   + 'title: ' + review.title + LF
-                   + 'content: ' + review.content + LF
-                   + 'version: ' + review.version + LF
-                   + 'author: ' + review.author + LF
-                   + '------------------------------' + LF;
+          mailBody += `date: ${review.date}${LF}title: ${review.title}${LF}`
+                   + `content: ${review.content}${LF}`
+                   + `version: ${review.version}${LF}`
+                   + `author: '${review.author}${LF}`
+                   + `------------------------------${LF}`;
         });
       }
     }
