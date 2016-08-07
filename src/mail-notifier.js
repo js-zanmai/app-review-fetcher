@@ -4,11 +4,8 @@ import config from '../config';
 import util from './utility';
 import Scraper from './scraper';
 
-function isTodaysReview(review, index, array) {
-  return new Date(review.date) > util.getYesterday();
-}
 
-async function sendMailAsnc(subject, mailBody) {
+async function sendMailAsync(subject, mailBody) {
   const transporter = nodemailer.createTransport('SMTP', {
     host: config.host,
     port: config.port
@@ -27,13 +24,16 @@ async function sendMailAsnc(subject, mailBody) {
 async function reportAsync(appInfoList, asyncFunc, mailSubject) {
   try {
     let mailBody = '';
-    let hasNewReviews= false;
+    let hasNewReviews = false;
     const LF = '\n';
   
     for(const appInfo of appInfoList) {
       const reviews = await asyncFunc(appInfo.id);
       // 昨日以降のレビューを新着レビューとして判定する。
-      const reviewsOfToday = reviews.filter(isTodaysReview);
+      const reviewsOfToday = reviews.filter((review) => { 
+        return new Date(review.date) > util.getYesterday(); 
+      });
+
       if (reviewsOfToday.length > 0) {
         mailBody += LF + '■' + appInfo.name + LF;
         reviewsOfToday.forEach((review) => {
@@ -49,8 +49,7 @@ async function reportAsync(appInfoList, asyncFunc, mailSubject) {
     }
 
     if (hasNewReviews) {
-      console.log(mailBody);
-      // await sendMailAsnc(mailSubject, mailBody);
+      await sendMailAsync(mailSubject, mailBody);
     } else {
       console.log(mailSubject + 'はありませんでした。');
     }
