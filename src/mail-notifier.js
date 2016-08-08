@@ -31,7 +31,7 @@ async function reportAsync(appInfoList, asyncFunc, mailSubject) {
     const LF = '\n';
     const yesterday = util.getYesterday();
   
-    for(const appInfo of appInfoList) {
+    for (const appInfo of appInfoList) {
       const reviews = await asyncFunc(appInfo.id);
       // 昨日以降のレビューを新着レビューとして判定する。
       const reviewsOfToday = reviews.filter((review) => {

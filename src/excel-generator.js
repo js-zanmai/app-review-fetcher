@@ -12,7 +12,7 @@ async function createExcelReportAsync(appInfoList, asyncFunc, fileNameWithoutExt
     logger.info(`Start createExcelReportAsync ${fileNameWithoutExtension}`);
     const xlsx = officegen('xlsx');
 
-    for(const appInfo of appInfoList) {
+    for (const appInfo of appInfoList) {
       const reviews = await asyncFunc(appInfo.id);
       const worksheet = xlsx.makeNewSheet();
       worksheet.name = appInfo.name;
