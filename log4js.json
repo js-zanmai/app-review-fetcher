@@ -1,0 +1,23 @@
+{
+  "appenders": [
+    {
+      "type": "file",
+      "category": "fileAppender",
+      "filename": "logs/app_review_fetcher.log",
+      "maxLogSize": 20480,
+      "backups": 10,
+      "layout": {
+        "type": "pattern",
+        "pattern": "[%d] [%p] - %m"
+      }
+    },
+    {
+      "type": "console",
+      "layout": {
+        "type": "pattern",
+        "pattern": "[%d] [%p] - %m"
+      }
+    }
+  ],
+  "levels": {"fileAppender": "ALL"}
+}

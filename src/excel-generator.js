@@ -1,11 +1,15 @@
 import 'babel-polyfill';// for async/await
+import util from './utility';
 import Scraper from './scraper';
 import config from '../config';
 import officegen from 'officegen';
 import fs from 'fs';
 
+const logger = util.getLogger();
+
 async function createExcelReportAsync(appInfoList, asyncFunc, fileNameWithoutExtension) {
   try {
+    logger.info(`Start createExcelReportAsync ${fileNameWithoutExtension}`);
     const xlsx = officegen('xlsx');
 
     for(const appInfo of appInfoList) {
@@ -19,12 +23,13 @@ async function createExcelReportAsync(appInfoList, asyncFunc, fileNameWithoutExt
     }
    
     const out = fs.createWriteStream(`${__dirname}/../out/${fileNameWithoutExtension}.xlsx`);
+    logger.info(`Finished createExcelReportAsync ${fileNameWithoutExtension}`);
     out.on('error', (error) => {
-      console.log(error);
+      logger.error(error);
     });
     xlsx.generate(out);
   } catch (error) {
-    console.log('Error:', error);
+    logger.error(error);
   }
 }
 

@@ -4,6 +4,7 @@ import config from '../config';
 import util from './utility';
 import Scraper from './scraper';
 
+const logger = util.getLogger();
 
 async function sendMailAsync(subject, mailBody) {
   const transporter = nodemailer.createTransport('SMTP', {
@@ -18,7 +19,9 @@ async function sendMailAsync(subject, mailBody) {
     text: mailBody
   };
 
+  logger.info(`Start sending mail ${subject}`);
   await transporter.sendMail(mailOptions);
+  logger.info(`Finished sending mail ${subject}`);
 }
 
 async function reportAsync(appInfoList, asyncFunc, mailSubject) {
@@ -26,12 +29,13 @@ async function reportAsync(appInfoList, asyncFunc, mailSubject) {
     let mailBody = '';
     let hasNewReviews = false;
     const LF = '\n';
+    const yesterday = util.getYesterday();
   
     for(const appInfo of appInfoList) {
       const reviews = await asyncFunc(appInfo.id);
       // 昨日以降のレビューを新着レビューとして判定する。
-      const reviewsOfToday = reviews.filter((review) => { 
-        return new Date(review.date) > util.getYesterday(); 
+      const reviewsOfToday = reviews.filter((review) => {
+        return new Date(review.date) > yesterday; 
       });
 
       if (reviewsOfToday.length > 0) {
@@ -50,11 +54,11 @@ async function reportAsync(appInfoList, asyncFunc, mailSubject) {
     if (hasNewReviews) {
       await sendMailAsync(mailSubject, mailBody);
     } else {
-      console.log(mailSubject + 'はありませんでした。');
+      logger.info(`${mailSubject} is nothing`);
     }
 
   } catch (error) {
-    console.log('Error:', error);
+    logger.error(error);
   }
 }
 
