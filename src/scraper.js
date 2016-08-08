@@ -2,9 +2,11 @@ import client from 'cheerio-httpcli';
 import util from './utility';
 import Review from './review';
 
-const logger = util.getLogger();
-
 export default class Scraper {
+
+  constructor() {
+    this.logger = util.getLogger();
+  }
 
   fetchReviewFromAppStore(id) {
     return new Promise((resolve, reject) => {
@@ -44,7 +46,7 @@ export default class Scraper {
           // linkタグをクロールすることで過去のレビューを再帰的に取得する。
           return fetchRecursive(nextPage);
         }).catch((error) => {
-          logger.error(error);
+          this.logger.error(error);
           reject(error);
         });
       };
@@ -79,7 +81,7 @@ export default class Scraper {
         
         resolve(reviews);
       }).catch((error) => {
-        logger.error(error);
+        this.logger.error(error);
         reject(error);
       });
     });
