@@ -60,7 +60,7 @@ async function archiveAsync(appInfoList, asyncFunc, tableName) {
 
     for (const appInfo of appInfoList) {
       const reviews = await asyncFunc(appInfo.id);
-      const savedReviews = await selectIdList(tableName, appInfo.name);
+      const savedReviews = await selectIdList(appInfo.name, tableName);
 
       const reviewIdList = savedReviews.map((review) => {
         return review.id;
@@ -71,7 +71,7 @@ async function archiveAsync(appInfoList, asyncFunc, tableName) {
       });
  
       if (newReviews.length > 0) {
-        insertReviews(tableName, appInfo.name, newReviews);
+        insertReviews(newReviews, appInfo.name, tableName);
         logger.info(`Inserted ${newReviews.length} number of reviews. [Table Name] ${tableName} [App name] ${appInfo.name}`);
       } else {
         logger.info(`Review is nothing. [Table Name] ${tableName} [App name] ${appInfo.name}`);
