@@ -1,5 +1,6 @@
 import 'babel-polyfill';// for async/await
 import nodemailer from 'nodemailer';
+import smtpTransport from 'nodemailer-smtp-transport';
 import config from '../config';
 import util from './utility';
 import Scraper from './scraper';
@@ -7,11 +8,12 @@ import Scraper from './scraper';
 const logger = util.getLogger();
 
 async function sendMailAsync(subject, mailBody) {
-  const transporter = nodemailer.createTransport('SMTP', {
-    host: config.host,
-    port: config.port
-  });
-  
+  const smtpConfig = {
+    host: config.mail.host,
+    port: config.mail.port
+  };
+
+  const transporter = nodemailer.createTransport(smtpTransport(smtpConfig));
   const mailOptions = {
     from: config.mail.fromAddress,
     to: config.mail.toAddress,
@@ -30,17 +32,18 @@ async function reportAsync(appInfoList, asyncFunc, mailSubject) {
     let hasNewReviews = false;
     const LF = '\n';
     const yesterday = util.getYesterday();
-  
+
     for (const appInfo of appInfoList) {
       const reviews = await asyncFunc(appInfo.id);
       // 昨日以降のレビューを新着レビューとして判定する。
       const reviewsOfToday = reviews.filter((review) => {
-        return new Date(review.date) > yesterday; 
+        return new Date(review.date) > yesterday;
       });
 
       if (reviewsOfToday.length > 0) {
-        mailBody += `${LF}■${appInfo.name}${LF}`;
-        reviewsOfToday.forEach((review) => {
+        mailBody += `${LF}■${appInfo.name}${LF}`
+                 + `------------------------------${LF}`;
+        reviewsOfToday.forEach((review) => {          
           hasNewReviews = true;
           mailBody += `date: ${review.date}${LF}title: ${review.title}${LF}`
                    + `content: ${review.content}${LF}`
@@ -52,6 +55,7 @@ async function reportAsync(appInfoList, asyncFunc, mailSubject) {
     }
 
     if (hasNewReviews) {
+      logger.info(`New arrivals!!! [subject] ${mailSubject} [body] ${mailBody}`);
       await sendMailAsync(mailSubject, mailBody);
     } else {
       logger.info(`${mailSubject} is nothing`);
@@ -65,8 +69,8 @@ async function reportAsync(appInfoList, asyncFunc, mailSubject) {
 async function main() {
   const scraper = new Scraper();
   await Promise.all([
-    reportAsync(config.appStore, scraper.fetchReviewFromAppStore, 'AppStore新着レビュー'),
-    reportAsync(config.googlePlay, scraper.fetchReviewFromGooglePlay, 'GooglePlay新着レビュー')
+    reportAsync(config.appStore, scraper.fetchReviewFromAppStore, '【AppStore新着レビュー】'),
+    reportAsync(config.googlePlay, scraper.fetchReviewFromGooglePlay, '【GooglePlay新着レビュー】')
   ]);
 }
 
