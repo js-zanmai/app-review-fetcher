@@ -18,7 +18,8 @@
     "log4js": "^0.6.38",
     "nodemailer": "^2.4.2",
     "nodemailer-smtp-transport": "^2.6.0",
-    "officegen": "^0.2.9"
+    "officegen": "^0.2.9",
+    "sqlite3": "^3.1.4"
   },
   "devDependencies": {
     "babel-cli": "^6.10.1",

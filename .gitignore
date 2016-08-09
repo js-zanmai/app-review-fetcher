@@ -37,3 +37,5 @@ jspm_packages
 .vscode
 dist
 *.xlsx
+*.log.*
+*.sqlite
