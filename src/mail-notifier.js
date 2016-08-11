@@ -5,63 +5,69 @@ import config from '../config';
 import PlatformType from './platform';
 import util from './utility';
 
-const logger = util.getLogger();
+export default class MailNotifier {
 
-async function sendMailAsync(subject, mailBody) {
-  const smtpConfig = {
-    host: config.mail.host,
-    port: config.mail.port
-  };
+  constructor(logger) {
+    this.logger = logger;
+  }
 
-  const transporter = nodemailer.createTransport(smtpTransport(smtpConfig));
-  const mailOptions = {
-    from: config.mail.fromAddress,
-    to: config.mail.toAddress,
-    subject: subject,
-    text: mailBody
-  };
+  async sendMailAsync(subject, mailBody) {
+    const smtpConfig = {
+      host: config.mail.host,
+      port: config.mail.port
+    };
 
-  logger.info(`Start sending mail ${subject}`);
-  await transporter.sendMail(mailOptions);
-  logger.info(`Finished sending mail ${subject}`);
-}
+    const transporter = nodemailer.createTransport(smtpTransport(smtpConfig));
+    const mailOptions = {
+      from: config.mail.fromAddress,
+      to: config.mail.toAddress,
+      subject: subject,
+      text: mailBody
+    };
 
-export async function notifyAsync(appReviewInfoList, platformType) {
-  try {
-    let mailBody = '';
-    let hasNewReviews = false;
-    const LF = '\n';
-    const yesterday = util.getYesterday();
-    const mailSubject = platformType === PlatformType.APPSTORE ? '【AppStore新着レビュー】' : '【GooglePlay新着レビュー】';
+    this.logger.info(`Start sending mail ${subject}`);
+    await transporter.sendMail(mailOptions);
+    this.logger.info(`Finished sending mail ${subject}`);
+  }
 
-    for (const appReviewInfo of appReviewInfoList) {
-      // 昨日以降のレビューを新着レビューとして判定する。
-      const reviewsOfToday = appReviewInfo.reviews.filter((review) => {
-        return new Date(review.date) > yesterday;
-      });
+  async notifyAsync(appReviewInfoList, platformType) {
+    try {
+      let mailBody = '';
+      let hasNewReviews = false;
+      const LF = '\n';
+      const yesterday = util.getYesterday();
+      const mailSubject = platformType === PlatformType.APPSTORE ? '【AppStore新着レビュー】' : '【GooglePlay新着レビュー】';
 
-      if (reviewsOfToday.length > 0) {
-        mailBody += `${LF}■${appReviewInfo.name}${LF}`
-                 + `------------------------------${LF}`;
-        reviewsOfToday.forEach((review) => {          
-          hasNewReviews = true;
-          mailBody += `date: ${review.date}${LF}title: ${review.title}${LF}`
-                   + `content: ${review.content}${LF}`
-                   + `version: ${review.version}${LF}`
-                   + `author: '${review.author}${LF}`
-                   + `------------------------------${LF}`;
+      for (const appReviewInfo of appReviewInfoList) {
+        // 昨日以降のレビューを新着レビューとして判定する。
+        const reviewsOfToday = appReviewInfo.reviews.filter((review) => {
+          return new Date(review.date) > yesterday;
         });
+
+        if (reviewsOfToday.length > 0) {
+          mailBody += `${LF}■${appReviewInfo.name}${LF}`
+                  + `------------------------------${LF}`;
+          reviewsOfToday.forEach((review) => {          
+            hasNewReviews = true;
+            mailBody += `date: ${review.date}${LF}title: ${review.title}${LF}`
+                    + `content: ${review.content}${LF}`
+                    + `version: ${review.version}${LF}`
+                    + `author: '${review.author}${LF}`
+                    + `------------------------------${LF}`;
+          });
+        }
       }
-    }
 
-    if (hasNewReviews) {
-      logger.info(`New arrivals!!! [subject] ${mailSubject} [body] ${mailBody}`);
-      await sendMailAsync(mailSubject, mailBody);
-    } else {
-      logger.info(`${mailSubject} is nothing`);
-    }
+      if (hasNewReviews) {
+        this.logger.info(`New arrivals!!! [subject] ${mailSubject} [body] ${mailBody}`);
+        await this.sendMailAsync(mailSubject, mailBody);
+      } else {
+        this.logger.info(`${mailSubject} is nothing`);
+      }
 
-  } catch (error) {
-    logger.error(error);
+    } catch (error) {
+      this.logger.error(error);
+    }
   }
 }
+

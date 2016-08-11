@@ -4,8 +4,8 @@ import Review from './review';
 
 export default class Scraper {
 
-  constructor() {
-    this.logger = util.getLogger();
+  constructor(logger) {
+    this.logger = logger;
   }
 
   fetchReviewFromAppStore(id) {

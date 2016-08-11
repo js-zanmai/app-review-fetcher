@@ -23,5 +23,5 @@ npm run test-cov
 
 ## Run
 ```
-node dist/index.js
+node dist/main.js
 ```

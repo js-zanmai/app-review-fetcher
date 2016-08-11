@@ -1,4 +1,3 @@
-import util from './utility';
 import PlatformType from './platform';
 import officegen from 'officegen';
 import fs from 'fs';
@@ -6,8 +5,8 @@ import path from 'path';
 
 export default class ExcelGenerator {
 
-  constructor() {
-    this.logger = util.getLogger();
+  constructor(logger) {
+    this.logger = logger;
   }
 
   generate(appReviewInfoList, platformType, outputFolder) {

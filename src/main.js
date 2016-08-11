@@ -1,13 +1,16 @@
 import 'babel-polyfill';// for async/await
+import log4js from 'log4js'; 
 import AppReviewInfo from './app-review-info';
 import config from '../config';
 import util from './utility';
 import PlatformType from './platform';
 import Scraper from './scraper';
 import ExcelGenerator from './excel-generator';
-import { archiveAsync } from './sqlite-archiver';
-import { notifyAsync } from './mail-notifier';
+import SqliteArchiver from './sqlite-archiver';
+import MailNotifier from './mail-notifier';
 
+log4js.configure(`${__dirname}/../log4js.json`); 
+const logger = log4js.getLogger('fileAppender');
 
 async function scrapeAppReviewInfoListBody(appSettings, asyncFunc) {
   const appReviewInfoList = [];
@@ -21,7 +24,7 @@ async function scrapeAppReviewInfoListBody(appSettings, asyncFunc) {
 }
 
 async function scrapeAppReviewInfoList(platform) {
-  const scraper = new Scraper();
+  const scraper = new Scraper(logger);
 
   if (platform === PlatformType.APPSTORE) {
     return await scrapeAppReviewInfoListBody(config.appStore, scraper.fetchReviewFromAppStore);
@@ -35,16 +38,22 @@ async function executeAsync(platformType) {
     const appReviewInfoList = await scrapeAppReviewInfoList(platformType);
 
     if (config.service.excel) {
-      const excelGenerator = new ExcelGenerator();
+      const excelGenerator = new ExcelGenerator(logger);
       excelGenerator.generate(appReviewInfoList, platformType, `${__dirname}/../out`);
     }
 
     if (config.service.sqlite) {
-      await archiveAsync(appReviewInfoList, platformType);
+      const sqliteArchiver = new SqliteArchiver(`${__dirname}/../out/reviews.sqlite`, logger);
+      try {
+        await sqliteArchiver.archiveAsync(appReviewInfoList, platformType);
+      } finally {
+        sqliteArchiver.close();
+      }
     }
 
     if (config.service.mail) {
-      await notifyAsync(appReviewInfoList, platformType);
+      const mailNotifier = new MailNotifier(logger);
+      await mailNotifier.notifyAsync(appReviewInfoList, platformType);
     }
 
   } catch (error) {

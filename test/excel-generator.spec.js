@@ -3,6 +3,7 @@ import PlatformType from '../src/platform';
 import Review from '../src/review';
 import AppReviewInfo from '../src/app-review-info';
 import ExcelGenerator from '../src/excel-generator';
+import DummyLogger from './dummy-logger';
 
 describe('ExcelGenerator', () => {
   describe('#generate()', () => {
@@ -13,7 +14,7 @@ describe('ExcelGenerator', () => {
     ];
 
     tests.forEach((test) => {
-      it(`should ${test.fileName} is generated`, () => {
+      it(`should generated ${test.fileName}`, () => {
         const expectedFilePath = `${__dirname}/${test.fileName}`;
         try {
           // Arrange
@@ -25,8 +26,8 @@ describe('ExcelGenerator', () => {
           const version = 1.0;
           const author = 'author';
           const review = new Review(id, updated, title, content, rating, version, author);
-          const appReviewInfoList = [new AppReviewInfo('hoge', [review]), new AppReviewInfo('hoge', [review])];
-          const excelGenerator = new ExcelGenerator();
+          const appReviewInfoList = [new AppReviewInfo('hoge', [review]), new AppReviewInfo('moge', [review])];
+          const excelGenerator = new ExcelGenerator(new DummyLogger());
           // Act
           excelGenerator.generate(appReviewInfoList, test.platformType, __dirname);
           // Assert
