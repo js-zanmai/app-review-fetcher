@@ -38,6 +38,7 @@ describe('SqliteArchiver', () => {
 
     tests.forEach((test) => {
       it(`should inserted the review ${test.tableName}`, async function(done) {
+        this.timeout(5000);
         // Arrange
         const app1 = 'hoge';
         const app2 = 'moge';
