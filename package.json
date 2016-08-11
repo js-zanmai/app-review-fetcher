@@ -2,7 +2,7 @@
   "name": "app-review-fetcher",
   "version": "1.0.0",
   "description": "",
-  "main": "scraper.js",
+  "main": "index.js",
   "scripts": {
     "watch": "babel -w src -d dist",
     "build": "babel src -d dist",

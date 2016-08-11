@@ -23,5 +23,5 @@ npm run test-cov
 
 ## Run
 ```
-node dist/excel-generator.js
+node dist/index.js
 ```

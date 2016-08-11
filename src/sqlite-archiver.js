@@ -1,8 +1,7 @@
 import 'babel-polyfill';// for async/await
 import sqlite3 from 'sqlite3';
-import Scraper from './scraper';
 import util from './utility';
-import config from '../config';
+import PlatformType from './platform';
 
 const sqlite3Client = sqlite3.verbose();
 const dbPath = `${__dirname}/../out/reviews.sqlite`;
@@ -54,41 +53,32 @@ function insertReviews(reviews, appName, tableName) {
   }); 
 }
 
-async function archiveAsync(appInfoList, asyncFunc, tableName) {
+export async function archiveAsync(appReviewInfoList, platformType) {
   try {
+    const tableName = platformType === PlatformType.APPSTORE ? 'appstore' : 'googleplay'; 
+
     initTableIfNotExists(tableName);
 
-    for (const appInfo of appInfoList) {
-      const reviews = await asyncFunc(appInfo.id);
-      const savedReviews = await selectIdList(appInfo.name, tableName);
+    for (const appReviewInfo of appReviewInfoList) {
+      const savedReviews = await selectIdList(appReviewInfo.name, tableName);
 
       const reviewIdList = savedReviews.map((review) => {
         return review.id;
       });
 
-      const newReviews = reviews.filter((review) => {
+      const newReviews = appReviewInfo.reviews.filter((review) => {
         return !reviewIdList.includes(review.id);
       });
  
       if (newReviews.length > 0) {
-        insertReviews(newReviews, appInfo.name, tableName);
-        logger.info(`Inserted ${newReviews.length} number of reviews. [Table Name] ${tableName} [App name] ${appInfo.name}`);
+        insertReviews(newReviews, appReviewInfo.name, tableName);
+        logger.info(`Inserted ${newReviews.length} number of reviews. [Table Name] ${tableName} [App name] ${appReviewInfo.name}`);
       } else {
-        logger.info(`Review is nothing. [Table Name] ${tableName} [App name] ${appInfo.name}`);
+        logger.info(`Review is nothing. [Table Name] ${tableName} [App name] ${appReviewInfo.name}`);
       }
     }
   } catch (error) {
     logger.error(error);
   }
+  // TODO db.close();
 }
-
-async function main() {
-  const scraper = new Scraper();
-  await Promise.all([
-    archiveAsync(config.appStore, scraper.fetchReviewFromAppStore, 'appstore'),
-    archiveAsync(config.googlePlay, scraper.fetchReviewFromGooglePlay, 'googleplay')
-  ]);
-}
-
-main();
-
