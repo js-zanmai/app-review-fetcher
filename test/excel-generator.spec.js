@@ -1,5 +1,5 @@
 import fs from 'fs';
-import PlatformType from '../src/Platform';
+import PlatformType from '../src/platform';
 import Review from '../src/review';
 import AppReviewInfo from '../src/app-review-info';
 import ExcelGenerator from '../src/excel-generator';
