@@ -2,33 +2,41 @@ import util from './utility';
 import PlatformType from './platform';
 import officegen from 'officegen';
 import fs from 'fs';
+import path from 'path';
 
-const logger = util.getLogger();
+export default class ExcelGenerator {
 
-export function generateExcelReport(appReviewInfoList, platformType) {
-  try {
+  constructor() {
+    this.logger = util.getLogger();
+  }
 
-    const fileNameWithoutExtension = platformType === PlatformType.APPSTORE ? 'AppStoreReviews' : 'GooglePlayReviews';
-    logger.info(`Start generate ${fileNameWithoutExtension}`);
-    const xlsx = officegen('xlsx');
+  generate(appReviewInfoList, platformType, outputFolder) {
+    try {      
+      const fileNameWithoutExtension = platformType === PlatformType.APPSTORE ? 'AppStoreReviews' : 'GooglePlayReviews';
+      this.logger.info(`Start generate ${fileNameWithoutExtension}`);
+      const xlsx = officegen('xlsx');
+      
+      for (const appReviewInfo of appReviewInfoList) {
+        const worksheet = xlsx.makeNewSheet();
+        worksheet.name = appReviewInfo.name;
+        worksheet.data[0] = ['date', 'title', 'content', 'rating', 'version', 'author'];
+        appReviewInfo.reviews.forEach((review, index) => {  
+          worksheet.data[index + 1] = [review.date, review.title, review.content, parseInt(review.rating, 10), review.version, review.author];
+        });
+      }
 
-    for (const appReviewInfo of appReviewInfoList) {
-      const worksheet = xlsx.makeNewSheet();
-      worksheet.name = appReviewInfo.name;
-      worksheet.data[0] = ['date', 'title', 'content', 'rating', 'version', 'author'];
-      appReviewInfo.reviews.forEach((review, index) => {  
-        worksheet.data[index + 1] = [review.date, review.title, review.content, parseInt(review.rating, 10), review.version, review.author];
+      const absPath = path.join(outputFolder, `${fileNameWithoutExtension}.xlsx`);
+      const out = fs.createWriteStream(absPath);
+      this.logger.info(`Finished generate ${fileNameWithoutExtension}`);
+      out.on('error', (error) => {
+        this.logger.error(error);
       });
-    }
-   
-    const out = fs.createWriteStream(`${__dirname}/../out/${fileNameWithoutExtension}.xlsx`);
-    logger.info(`Finished generate ${fileNameWithoutExtension}`);
-    out.on('error', (error) => {
-      logger.error(error);
-    });
-    xlsx.generate(out);
+      xlsx.generate(out);
 
-  } catch (error) {
-    logger.error(error);
+    } catch (error) {
+      this.logger.error(error);
+    }
+
   }
 }
+

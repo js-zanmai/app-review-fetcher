@@ -4,7 +4,7 @@ import config from '../config';
 import util from './utility';
 import PlatformType from './platform';
 import Scraper from './scraper';
-import { generateExcelReport } from './excel-generator';
+import ExcelGenerator from './excel-generator';
 import { archiveAsync } from './sqlite-archiver';
 import { notifyAsync } from './mail-notifier';
 
@@ -35,7 +35,8 @@ async function executeAsync(platformType) {
     const appReviewInfoList = await scrapeAppReviewInfoList(platformType);
 
     if (config.service.excel) {
-      generateExcelReport(appReviewInfoList, platformType);
+      const excelGenerator = new ExcelGenerator();
+      excelGenerator.generate(appReviewInfoList, platformType, `${__dirname}/../out`);
     }
 
     if (config.service.sqlite) {
