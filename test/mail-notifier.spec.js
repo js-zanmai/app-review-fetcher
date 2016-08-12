@@ -66,9 +66,7 @@ describe('MailNotifier', () => {
         const appReviewInfoList = [new AppReviewInfo('hoge', [yesterdayReview1]), new AppReviewInfo('moge', [yesterdayReview2])];
         const mailNotifier = new MailNotifier(new DummyLogger());
         let wasCalled = false;
-        mailNotifier.sendMailAsync = (subject, mailBody) => {
-          wasCalled = true;
-        };
+        mailNotifier.sendMailAsync = (subject, mailBody) => { wasCalled = true; };
         // Act
         mailNotifier.notifyAsync(appReviewInfoList, test.platformType);
         // Assert

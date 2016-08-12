@@ -13,7 +13,6 @@
     "block-spacing": 2,
     "comma-spacing": 2,
     "camelcase": 2,
-    "brace-style": 2,
     "array-bracket-spacing": 2,
     "no-mixed-spaces-and-tabs": 2,
     "no-whitespace-before-property": 2,

@@ -61,6 +61,11 @@ describe('SqliteArchiver', () => {
         expect(idList1[0].id).to.equal(id1);
         expect(idList2[0].id).to.equal(id2);
 
+        let wasCalled = false;
+        SqliteArchiver.insertReviews = (reviews, appName, tableName) => { wasCalled = true; };
+        await sqliteArchiver.archiveAsync(appReviewInfoList, test.platformType);
+        expect(wasCalled).to.be.false;
+
         done();
       });
     });

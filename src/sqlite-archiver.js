@@ -57,6 +57,7 @@ export default class SqliteArchiver {
   }
 
   async archiveAsync(appReviewInfoList, platformType) {
+    await this.db.run('BEGIN');
     try {
       const tableName = platformType === PlatformType.APPSTORE ? 'appstore' : 'googleplay'; 
 
@@ -64,13 +65,8 @@ export default class SqliteArchiver {
       
       for (const appReviewInfo of appReviewInfoList) {
         const savedReviews = await this.selectIdListAsync(appReviewInfo.name, tableName);
-        const reviewIdList = savedReviews.map((review) => {
-          return review.id;
-        });
-        
-        const newReviews = appReviewInfo.reviews.filter((review) => {
-          return !reviewIdList.includes(review.id);
-        });
+        const reviewIdList = savedReviews.map((review) => { return review.id; });
+        const newReviews = appReviewInfo.reviews.filter((review) => { return !reviewIdList.includes(review.id); });
         
         if (newReviews.length > 0) {
           this.insertReviews(newReviews, appReviewInfo.name, tableName);
@@ -79,7 +75,9 @@ export default class SqliteArchiver {
           this.logger.info(`Review is nothing. [Table Name] ${tableName} [App name] ${appReviewInfo.name}`);
         }
       }
+      await this.db.run('COMMIT');
     } catch (error) {
+      await this.db.run('ROLLBACK');
       this.logger.error(error);
     }
   

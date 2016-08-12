@@ -2,7 +2,6 @@ import 'babel-polyfill';// for async/await
 import log4js from 'log4js'; 
 import AppReviewInfo from './app-review-info';
 import config from '../config';
-import util from './utility';
 import PlatformType from './platform';
 import Scraper from './scraper';
 import ExcelGenerator from './excel-generator';
@@ -57,15 +56,13 @@ async function executeAsync(platformType) {
     }
 
   } catch (error) {
-    util.getLogger().error(error);
+    logger.error(error);
   }
 }
 
 async function main() {
-  await Promise.all([
-    executeAsync(PlatformType.APPSTORE),
-    executeAsync(PlatformType.GOOGLEPLAY)
-  ]);
+  await executeAsync(PlatformType.APPSTORE);
+  await executeAsync(PlatformType.GOOGLEPLAY);
 }
 
 main();
