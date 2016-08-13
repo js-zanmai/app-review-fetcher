@@ -19,7 +19,7 @@ describe('app-review-info', () => {
       const appReviewInfo = new AppReviewInfo(appName, reviews);
       // Assert
       expect(appReviewInfo.name).to.equal(appName);
-      expect(appReviewInfo.reviews).to.equal(reviews);      
+      expect(appReviewInfo.reviews).to.equal(reviews);
     });
   });
 });

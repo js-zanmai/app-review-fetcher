@@ -19,8 +19,8 @@ describe('MailNotifier', () => {
         
         // Arrange
         const now = new Date();
-        const dateToStr = (date) => { 
-          return `${date.getFullYear()}/${util.zeroPadding(date.getMonth() + 1)}/${util.zeroPadding(date.getDate())}`; 
+        const dateToStr = (date) => {
+          return `${date.getFullYear()}/${util.zeroPadding(date.getMonth() + 1)}/${util.zeroPadding(date.getDate())}`;
         };
 
         const yesterday = util.getYesterday();
@@ -50,7 +50,7 @@ describe('MailNotifier', () => {
         
         // Arrange
         const dateToStr = (date) => { 
-          return `${date.getFullYear()}/${util.zeroPadding(date.getMonth() + 1)}/${util.zeroPadding(date.getDate())}`; 
+          return `${date.getFullYear()}/${util.zeroPadding(date.getMonth() + 1)}/${util.zeroPadding(date.getDate())}`;
         };
 
         const yesterday = util.getYesterday();
