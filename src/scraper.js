@@ -4,8 +4,8 @@ import Review from './review';
 
 export default class Scraper {
 
-  constructor() {
-    this.logger = util.getLogger();
+  constructor(logger) {
+    this.logger = logger;
   }
 
   fetchReviewFromAppStore(id) {
@@ -23,6 +23,7 @@ export default class Scraper {
           
           $('feed > entry').each((i, element) => {
             const entry = $(element);
+            const id = entry.find('id').text();
             const date = entry.find('updated').text().replace(/(.*?)-(.*?)-(.*?)T(.*?)-.*/, '$1/$2/$3 $4');
             const title = entry.find('title').text();
             const content = entry.find('content[type=text]').text();
@@ -34,7 +35,7 @@ export default class Scraper {
               // 最初のentryタグは関係ないのでスキップする。
               return; 
             }
-            reviews.push(new Review(date, title, content, rating, version, author));
+            reviews.push(new Review(id, date, title, content, rating, version, author));
           });
 
           if (isFinished || !nextPage || (firstPage == lastPage)) {
@@ -67,7 +68,8 @@ export default class Scraper {
 
         $('div.review-link').remove();
         $('.single-review').each((i, element) => {
-          const reviewInfo = $(element).find('.review-info'); 
+          const reviewInfo = $(element).find('.review-info');
+          const id = $(element).find('.review-header').attr('data-reviewid');
           const tmpDate = $(reviewInfo).find('.review-date').text().match(/(.*)年(.*)月(.*)日/);
           const updated = tmpDate[1] + '/' + util.zeroPadding(tmpDate[2]) + '/' + util.zeroPadding(tmpDate[3]);
           const rating = $(reviewInfo).find('.review-info-star-rating .tiny-star').attr('aria-label').match(/5つ星のうち(.*)つ星で評価しました/)[1];
@@ -76,7 +78,7 @@ export default class Scraper {
           const content = $(reviewBody).text().replace(title, '').trim();
           const author = $(element).find('.author-name > a').text();
           
-          reviews.push(new Review(updated, title, content, rating, '-', author));
+          reviews.push(new Review(id, updated, title, content, rating, '-', author));
         });
         
         resolve(reviews);

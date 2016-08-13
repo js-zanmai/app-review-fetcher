@@ -1,44 +1,41 @@
-import 'babel-polyfill';// for async/await
-import util from './utility';
-import Scraper from './scraper';
-import config from '../config';
+import PlatformType from './platform';
 import officegen from 'officegen';
 import fs from 'fs';
+import path from 'path';
 
-const logger = util.getLogger();
+export default class ExcelGenerator {
 
-async function createExcelReportAsync(appInfoList, asyncFunc, fileNameWithoutExtension) {
-  try {
-    logger.info(`Start createExcelReportAsync ${fileNameWithoutExtension}`);
-    const xlsx = officegen('xlsx');
+  constructor(logger) {
+    this.logger = logger;
+  }
 
-    for(const appInfo of appInfoList) {
-      const reviews = await asyncFunc(appInfo.id);
-      const worksheet = xlsx.makeNewSheet();
-      worksheet.name = appInfo.name;
-      worksheet.data[0] = ['date', 'title', 'content', 'rating', 'version', 'author'];
-      reviews.forEach((review, index) => {  
-        worksheet.data[index + 1] = [review.date, review.title, review.content, parseInt(review.rating, 10), review.version, review.author];
+  generate(appReviewInfoList, platformType, outputFolder) {
+    try {      
+      const fileNameWithoutExtension = platformType === PlatformType.APPSTORE ? 'AppStoreReviews' : 'GooglePlayReviews';
+      this.logger.info(`Start generate ${fileNameWithoutExtension}`);
+      const xlsx = officegen('xlsx');
+      
+      for (const appReviewInfo of appReviewInfoList) {
+        const worksheet = xlsx.makeNewSheet();
+        worksheet.name = appReviewInfo.name;
+        worksheet.data[0] = ['date', 'title', 'content', 'rating', 'version', 'author'];
+        appReviewInfo.reviews.forEach((review, index) => {  
+          worksheet.data[index + 1] = [review.date, review.title, review.content, parseInt(review.rating, 10), review.version, review.author];
+        });
+      }
+
+      const absPath = path.join(outputFolder, `${fileNameWithoutExtension}.xlsx`);
+      const out = fs.createWriteStream(absPath);
+      this.logger.info(`Finished generate ${fileNameWithoutExtension}`);
+      out.on('error', (error) => {
+        this.logger.error(error);
       });
+      xlsx.generate(out);
+
+    } catch (error) {
+      this.logger.error(error);
     }
-   
-    const out = fs.createWriteStream(`${__dirname}/../out/${fileNameWithoutExtension}.xlsx`);
-    logger.info(`Finished createExcelReportAsync ${fileNameWithoutExtension}`);
-    out.on('error', (error) => {
-      logger.error(error);
-    });
-    xlsx.generate(out);
-  } catch (error) {
-    logger.error(error);
+
   }
 }
 
-async function main() {
-  const scraper = new Scraper();
-  await Promise.all([
-    createExcelReportAsync(config.appStore, scraper.fetchReviewFromAppStore, 'AppStoreReviews'),
-    createExcelReportAsync(config.googlePlay, scraper.fetchReviewFromGooglePlay, 'GooglePlayReviews')
-  ]);
-}
-
-main();

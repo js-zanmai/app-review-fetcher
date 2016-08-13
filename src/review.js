@@ -1,6 +1,7 @@
 export default class Review {
 
-  constructor(date, title, content, rating, version, author) {
+  constructor(id, date, title, content, rating, version, author) {
+    this.id = id;
     this.date = date;
     this.title = title;
     this.content = content;

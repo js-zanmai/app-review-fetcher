@@ -1,4 +1,5 @@
-# app-review-fetcher
+# app-review-fetcher [![Build Status](https://travis-ci.org/monmaru/app-review-fetcher.svg?branch=master)](https://travis-ci.org/monmaru/app-review-fetcher)
+
 Node.js application to scrape mobile application data from the App store or Google Play store.
 
 ## Usage
@@ -22,5 +23,5 @@ npm run test-cov
 
 ## Run
 ```
-node dist/excel-generator.js
+node dist/main.js
 ```

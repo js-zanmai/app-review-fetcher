@@ -1,14 +1,19 @@
 {
   "appStore": [
     { "id": "982091927", "name": "セブン−イレブン マルチコピー" }
-  ],
-  "googlePlay":  [
+  ], 
+  "googlePlay": [
     { "id": "jp.co.fujixerox.mcopy", "name": "セブン−イレブン マルチコピー" }
   ],
+  "service": {
+    "excel": true,
+    "sqlite": true,
+    "mail": true
+  },
   "mail": {
     "host": "localhost",
     "port": 25,
-    "fromAddress": "", 
+    "fromAddress": "",
     "toAddress": ""
   }
 }

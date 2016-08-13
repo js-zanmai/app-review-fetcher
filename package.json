@@ -2,7 +2,7 @@
   "name": "app-review-fetcher",
   "version": "1.0.0",
   "description": "",
-  "main": "scraper.js",
+  "main": "main.js",
   "scripts": {
     "watch": "babel -w src -d dist",
     "build": "babel src -d dist",
@@ -17,7 +17,9 @@
     "cheerio-httpcli": "^0.6.8",
     "log4js": "^0.6.38",
     "nodemailer": "^2.4.2",
-    "officegen": "^0.2.9"
+    "nodemailer-smtp-transport": "^2.6.0",
+    "officegen": "^0.2.9",
+    "sqlite3": "^3.1.4"
   },
   "devDependencies": {
     "babel-cli": "^6.10.1",

@@ -1,73 +1,71 @@
 import 'babel-polyfill';// for async/await
 import nodemailer from 'nodemailer';
+import smtpTransport from 'nodemailer-smtp-transport';
 import config from '../config';
+import PlatformType from './platform';
 import util from './utility';
-import Scraper from './scraper';
 
-const logger = util.getLogger();
+export default class MailNotifier {
 
-async function sendMailAsync(subject, mailBody) {
-  const transporter = nodemailer.createTransport('SMTP', {
-    host: config.host,
-    port: config.port
-  });
-  
-  const mailOptions = {
-    from: config.mail.fromAddress,
-    to: config.mail.toAddress,
-    subject: subject,
-    text: mailBody
-  };
+  constructor(logger) {
+    this.logger = logger;
+  }
 
-  logger.info(`Start sending mail ${subject}`);
-  await transporter.sendMail(mailOptions);
-  logger.info(`Finished sending mail ${subject}`);
-}
+  async sendMailAsync(subject, mailBody) {
+    const smtpConfig = {
+      host: config.mail.host,
+      port: config.mail.port
+    };
 
-async function reportAsync(appInfoList, asyncFunc, mailSubject) {
-  try {
-    let mailBody = '';
-    let hasNewReviews = false;
-    const LF = '\n';
-    const yesterday = util.getYesterday();
-  
-    for(const appInfo of appInfoList) {
-      const reviews = await asyncFunc(appInfo.id);
-      // 昨日以降のレビューを新着レビューとして判定する。
-      const reviewsOfToday = reviews.filter((review) => {
-        return new Date(review.date) > yesterday; 
-      });
+    const transporter = nodemailer.createTransport(smtpTransport(smtpConfig));
+    const mailOptions = {
+      from: config.mail.fromAddress,
+      to: config.mail.toAddress,
+      subject: subject,
+      text: mailBody
+    };
 
-      if (reviewsOfToday.length > 0) {
-        mailBody += `${LF}■${appInfo.name}${LF}`;
-        reviewsOfToday.forEach((review) => {
-          hasNewReviews = true;
-          mailBody += `date: ${review.date}${LF}title: ${review.title}${LF}`
-                   + `content: ${review.content}${LF}`
-                   + `version: ${review.version}${LF}`
-                   + `author: '${review.author}${LF}`
-                   + `------------------------------${LF}`;
-        });
+    this.logger.info(`Start sending mail ${subject}`);
+    await transporter.sendMail(mailOptions);
+    this.logger.info(`Finished sending mail ${subject}`);
+  }
+
+  async notifyAsync(appReviewInfoList, platformType) {
+    try {
+      let mailBody = '';
+      let hasNewReviews = false;
+      const LF = '\n';
+      const yesterday = util.getYesterday();
+      const mailSubject = platformType === PlatformType.APPSTORE ? '【AppStore新着レビュー】' : '【GooglePlay新着レビュー】';
+
+      for (const appReviewInfo of appReviewInfoList) {
+        // 昨日以降のレビューを新着レビューとして判定する。
+        const reviewsOfToday = appReviewInfo.reviews.filter((review) => { return new Date(review.date) > yesterday; });
+
+        if (reviewsOfToday.length > 0) {
+          mailBody += `${LF}■${appReviewInfo.name}${LF}`
+                  + `------------------------------${LF}`;
+          reviewsOfToday.forEach((review) => {          
+            hasNewReviews = true;
+            mailBody += `date: ${review.date}${LF}title: ${review.title}${LF}`
+                    + `content: ${review.content}${LF}`
+                    + `version: ${review.version}${LF}`
+                    + `author: '${review.author}${LF}`
+                    + `------------------------------${LF}`;
+          });
+        }
       }
-    }
 
-    if (hasNewReviews) {
-      await sendMailAsync(mailSubject, mailBody);
-    } else {
-      logger.info(`${mailSubject} is nothing`);
-    }
+      if (hasNewReviews) {
+        this.logger.info(`New arrivals!!! [subject] ${mailSubject} [body] ${mailBody}`);
+        await this.sendMailAsync(mailSubject, mailBody);
+      } else {
+        this.logger.info(`${mailSubject} is nothing`);
+      }
 
-  } catch (error) {
-    logger.error(error);
+    } catch (error) {
+      this.logger.error(error);
+    }
   }
 }
 
-async function main() {
-  const scraper = new Scraper();
-  await Promise.all([
-    reportAsync(config.appStore, scraper.fetchReviewFromAppStore, 'AppStore新着レビュー'),
-    reportAsync(config.googlePlay, scraper.fetchReviewFromGooglePlay, 'GooglePlay新着レビュー')
-  ]);
-}
-
-main();
