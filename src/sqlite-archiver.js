@@ -72,7 +72,7 @@ export default class SqliteArchiver {
           this.insertReviews(newReviews, appReviewInfo.name, tableName);
           this.logger.info(`Inserted ${newReviews.length} number of reviews. [Table Name] ${tableName} [App name] ${appReviewInfo.name}`);
         } else {
-          this.logger.info(`Review is nothing. [Table Name] ${tableName} [App name] ${appReviewInfo.name}`);
+          this.logger.info(`New review is nothing. [Table Name] ${tableName} [App name] ${appReviewInfo.name}`);
         }
       }
       await this.db.run('COMMIT');

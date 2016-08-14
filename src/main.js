@@ -16,6 +16,7 @@ async function scrapeAppReviewInfoListBody(appSettings, asyncFunc) {
 
   for (const appSetting of appSettings) {
     const reviews = await asyncFunc(appSetting.id);
+    logger.info(`${reviews.length} reviews fetched. [App name] ${appSetting.name}`);
     appReviewInfoList.push(new AppReviewInfo(appSetting.name, reviews));
   }
 
