@@ -5,13 +5,13 @@ import client from 'cheerio-httpcli';
 import util from './utility';
 import Review from './review';
 
+const logger = util.getLogger();
+
 export default class Scraper {
 
-  constructor(logger) {
-    this.logger = logger;
-  }
-
   fetchReviewFromAppStore(id) {
+    logger.info(`Start fetching from AppStore. id = ${id}`);
+    
     return new Promise((resolve, reject) => {
       const RSS = `https://itunes.apple.com/jp/rss/customerreviews/id=${id}/xml`;
       const reviews = [];
@@ -50,7 +50,7 @@ export default class Scraper {
           // linkタグをクロールすることで過去のレビューを再帰的に取得する。
           return fetchRecursive(nextPage);
         }).catch((error) => {
-          this.logger.error(error);
+          logger.error(error);
           reject(error);
         });
       };
@@ -62,12 +62,13 @@ export default class Scraper {
   }
 
   async fetchReviewFromGooglePlay(id) {
-    
+    logger.info(`Start fetching from GooglePlay. id = ${id}`);
+
     const doRequest = function(params) {
       return new Promise((resolve, reject) => {
         requestLib(params, (error, response, body) => {
           if (error) {
-            this.logger.error(error);
+            logger.error(error);
             reject(error);
           } else {
             resolve(body);
@@ -128,7 +129,7 @@ export default class Scraper {
         allReviews.push(review);
       }
       page++;
-    } while (tmpReviews.length == reviewCountPerPage);
+    } while (tmpReviews.length === reviewCountPerPage);
     
     return allReviews;
   }

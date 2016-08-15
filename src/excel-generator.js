@@ -27,9 +27,7 @@ export default class ExcelGenerator {
       const absPath = path.join(outputFolder, `${fileNameWithoutExtension}.xlsx`);
       const out = fs.createWriteStream(absPath);
       this.logger.info(`Finished generate ${fileNameWithoutExtension}`);
-      out.on('error', (error) => {
-        this.logger.error(error);
-      });
+      out.on('error', (error) => { this.logger.error(error); });
       xlsx.generate(out);
 
     } catch (error) {

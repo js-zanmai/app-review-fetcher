@@ -21,4 +21,12 @@ describe('utility', () => {
       expect(util.getYesterday().getDate()).to.equal(now.getDate() - 1);
     });
   });
+
+  describe('#getLogger()', () => {
+    it('shoud initialized logger instance', () => {
+      const logger = util.getLogger();
+      expect(logger).to.not.be.undefined;
+      expect(logger).to.not.be.null;
+    });
+  });
 });
