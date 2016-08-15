@@ -14,11 +14,13 @@
   "license": "MIT",
   "dependencies": {
     "babel-polyfill": "^6.13.0",
+    "cheerio": "^0.20.0",
     "cheerio-httpcli": "^0.6.8",
     "log4js": "^0.6.38",
     "nodemailer": "^2.4.2",
     "nodemailer-smtp-transport": "^2.6.0",
     "officegen": "^0.2.9",
+    "request": "^2.74.0",
     "sqlite3": "^3.1.4"
   },
   "devDependencies": {

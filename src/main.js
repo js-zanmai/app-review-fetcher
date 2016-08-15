@@ -1,21 +1,21 @@
 import 'babel-polyfill';// for async/await
-import log4js from 'log4js'; 
 import AppReviewInfo from './app-review-info';
 import config from '../config';
+import util from './utility';
 import PlatformType from './platform';
 import Scraper from './scraper';
 import ExcelGenerator from './excel-generator';
 import SqliteArchiver from './sqlite-archiver';
 import MailNotifier from './mail-notifier';
 
-log4js.configure(`${__dirname}/../log4js.json`); 
-const logger = log4js.getLogger('fileAppender');
+const logger = util.getLogger();
 
 async function scrapeAppReviewInfoListBody(appSettings, asyncFunc) {
   const appReviewInfoList = [];
 
   for (const appSetting of appSettings) {
     const reviews = await asyncFunc(appSetting.id);
+    logger.info(`${reviews.length} reviews fetched. [App name] ${appSetting.name}`);
     appReviewInfoList.push(new AppReviewInfo(appSetting.name, reviews));
   }
 
@@ -23,7 +23,7 @@ async function scrapeAppReviewInfoListBody(appSettings, asyncFunc) {
 }
 
 async function scrapeAppReviewInfoList(platform) {
-  const scraper = new Scraper(logger);
+  const scraper = new Scraper();
 
   if (platform === PlatformType.APPSTORE) {
     return await scrapeAppReviewInfoListBody(config.appStore, scraper.fetchReviewFromAppStore);
