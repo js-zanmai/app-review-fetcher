@@ -20,6 +20,7 @@
     "nodemailer": "^2.4.2",
     "nodemailer-smtp-transport": "^2.6.0",
     "officegen": "^0.2.9",
+    "ramda": "^0.22.1",
     "request": "^2.74.0",
     "sqlite3": "^3.1.4"
   },

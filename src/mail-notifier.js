@@ -40,7 +40,7 @@ export default class MailNotifier {
 
       for (const appReviewInfo of appReviewInfoList) {
         // 昨日以降のレビューを新着レビューとして判定する。
-        const reviewsOfToday = appReviewInfo.reviews.filter((review) => { return new Date(review.date) > yesterday; });
+        const reviewsOfToday = appReviewInfo.reviews.filter((review) => new Date(review.date) > yesterday);
 
         if (reviewsOfToday.length > 0) {
           mailBody += `${LF}■${appReviewInfo.name}${LF}`

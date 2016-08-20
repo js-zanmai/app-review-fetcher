@@ -1,5 +1,6 @@
 import 'babel-polyfill';// for async/await
 import sqlite3 from 'sqlite3';
+import R from 'ramda';
 import PlatformType from './platform';
 
 
@@ -47,11 +48,7 @@ export default class SqliteArchiver {
     this.db.serialize(() => {
       const query = `INSERT INTO ${tableName}(id, app_name, title, content, rating, date, version) VALUES(?, ?, ?, ?, ?, ?, ?)`;
       const stmt = this.db.prepare(query);
-      
-      for (const review of reviews) {
-        stmt.run(review.id, appName, review.title, review.content, parseInt(review.rating, 10), review.date, review.version);
-      }
-
+      reviews.forEach(x => stmt.run(x.id, appName, x.title, x.content, parseInt(x.rating, 10), x.date, x.version));
       stmt.finalize();
     }); 
   }
@@ -65,14 +62,13 @@ export default class SqliteArchiver {
       
       for (const appReviewInfo of appReviewInfoList) {
         const savedReviews = await this.selectIdListAsync(appReviewInfo.name, tableName);
-        const reviewIdList = savedReviews.map((review) => { return review.id; });
-        const newReviews = appReviewInfo.reviews.filter((review) => { return !reviewIdList.includes(review.id); });
+        const newReviews = R.filter(x => !R.contains(x.id, R.map(x => x.id, savedReviews)), appReviewInfo.reviews);
         
-        if (newReviews.length > 0) {
+        if (R.isEmpty(newReviews)) {
+          this.logger.info(`New review is nothing. [Table Name] ${tableName} [App name] ${appReviewInfo.name}`);
+        } else {
           this.insertReviews(newReviews, appReviewInfo.name, tableName);
           this.logger.info(`Inserted ${newReviews.length} number of reviews. [Table Name] ${tableName} [App name] ${appReviewInfo.name}`);
-        } else {
-          this.logger.info(`New review is nothing. [Table Name] ${tableName} [App name] ${appReviewInfo.name}`);
         }
       }
       await this.db.run('COMMIT');
