@@ -32,8 +32,7 @@ export default class MailNotifier {
   }
 
   rating2star(rating) {
-    const stars = R.times((i) => rating < i + 1 ? '☆' : '★', 5);
-    return R.reduce((a, b) => a + b, [], stars);
+    return R.reduce((a, b) => a + b, [], R.times((i) => i < rating ? '★' : '☆', 5));
   }
 
   async notifyAsync(appReviewInfoList, platformType) {

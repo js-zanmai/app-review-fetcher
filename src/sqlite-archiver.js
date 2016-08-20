@@ -63,7 +63,7 @@ export default class SqliteArchiver {
         const savedReviews = await this.selectAllReviewAsync(appReviewInfo.name, tableName);
         const isSameReview = (saved, review) => (review.date === saved.date) && (review.title === saved.title) && (review.author === saved.author);
         const curriedIsSameReview = R.curry(isSameReview);
-        const isNewReview = x => R.all(curriedIsSameReview(x))(savedReviews);
+        const isNewReview = x => !R.any(curriedIsSameReview(x))(savedReviews);
         const newReviews = R.filter(isNewReview, appReviewInfo.reviews);
 
         if (R.isEmpty(newReviews)) {
