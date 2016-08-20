@@ -1,4 +1,5 @@
 import 'babel-polyfill';// for async/await
+import R from 'ramda';
 import nodemailer from 'nodemailer';
 import smtpTransport from 'nodemailer-smtp-transport';
 import config from '../config';
@@ -30,6 +31,11 @@ export default class MailNotifier {
     this.logger.info(`Finished sending mail ${subject}`);
   }
 
+  rating2star(rating) {
+    const stars = R.times((i) => rating < i + 1 ? '☆' : '★', 5);
+    return R.reduce((a, b) => a + b, [], stars);
+  }
+
   async notifyAsync(appReviewInfoList, platformType) {
     try {
       let mailBody = '';
@@ -49,8 +55,9 @@ export default class MailNotifier {
             hasNewReviews = true;
             mailBody += `date: ${review.date}${LF}title: ${review.title}${LF}`
                     + `content: ${review.content}${LF}`
-                    + `version: ${review.version}${LF}`
                     + `author: '${review.author}${LF}`
+                    + `rating: ${this.rating2star(review.rating)}${LF}`
+                    + `version: ${review.version}${LF}`
                     + `------------------------------${LF}`;
           });
         }
