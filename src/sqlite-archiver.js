@@ -16,10 +16,10 @@ export default class SqliteArchiver {
     this.db.serialize(() => {
       this.db.run(
         `CREATE TABLE IF NOT EXISTS ${tableName}(` +
-        'id TEXT PRIMARY KEY, ' + 
         'app_name TEXT, ' +
         'title TEXT, ' +
         'content TEXT, ' +
+        'author TEXT, ' +
         'rating INTEGER, ' +
         'date TEXT, ' +
         'version TEXT)'
@@ -27,10 +27,10 @@ export default class SqliteArchiver {
     });
   }
 
-  selectIdListAsync(appName, tableName) {
+  selectAllReviewAsync(appName, tableName) {
     return new Promise((resolve, reject) => {
       this.db.serialize(() => {
-        this.db.all(`SELECT id FROM ${tableName} WHERE app_name = $appName`,
+        this.db.all(`SELECT * FROM ${tableName} WHERE app_name = $appName`,
           { $appName: appName },
           (err, res) => {
             if (err) {
@@ -46,9 +46,9 @@ export default class SqliteArchiver {
 
   insertReviews(reviews, appName, tableName) {
     this.db.serialize(() => {
-      const query = `INSERT INTO ${tableName}(id, app_name, title, content, rating, date, version) VALUES(?, ?, ?, ?, ?, ?, ?)`;
+      const query = `INSERT INTO ${tableName}(app_name, title, content, author, rating, date, version) VALUES(?, ?, ?, ?, ?, ?, ?)`;
       const stmt = this.db.prepare(query);
-      reviews.forEach(x => stmt.run(x.id, appName, x.title, x.content, parseInt(x.rating, 10), x.date, x.version));
+      reviews.forEach(x => stmt.run(appName, x.title, x.content, x.author, parseInt(x.rating, 10), x.date, x.version));
       stmt.finalize();
     }); 
   }
@@ -57,13 +57,15 @@ export default class SqliteArchiver {
     await this.db.run('BEGIN');
     try {
       const tableName = platformType === PlatformType.APPSTORE ? 'appstore' : 'googleplay'; 
-
       this.initTableIfNotExists(tableName);
       
       for (const appReviewInfo of appReviewInfoList) {
-        const savedReviews = await this.selectIdListAsync(appReviewInfo.name, tableName);
-        const newReviews = R.filter(x => !R.contains(x.id, R.map(x => x.id, savedReviews)), appReviewInfo.reviews);
-        
+        const savedReviews = await this.selectAllReviewAsync(appReviewInfo.name, tableName);
+        const isSameReview = (saved, review) => (review.date === saved.date) && (review.title === saved.title) && (review.author === saved.author);
+        const curriedIsSameReview = R.curry(isSameReview);
+        const isNewReview = x => R.all(curriedIsSameReview(x))(savedReviews);
+        const newReviews = R.filter(isNewReview, appReviewInfo.reviews);
+
         if (R.isEmpty(newReviews)) {
           this.logger.info(`New review is nothing. [Table Name] ${tableName} [App name] ${appReviewInfo.name}`);
         } else {
