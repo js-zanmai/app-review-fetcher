@@ -74,4 +74,21 @@ describe('MailNotifier', () => {
       });
     });
   });
+
+  describe('#rating2star()', () => {
+    const tests = [
+      {rating: 5, expected: '★★★★★'},
+      {rating: 4, expected: '★★★★☆'},
+      {rating: 3, expected: '★★★☆☆'},
+      {rating: 2, expected: '★★☆☆☆'},
+      {rating: 1, expected: '★☆☆☆☆'}
+    ];
+
+    tests.forEach((test) => {
+      it(`shoud be converted to ${test.expected}`, () => {
+        const mailNotifier = new MailNotifier(new DummyLogger());
+        expect(mailNotifier.rating2star(test.rating)).to.equal(test.expected);
+      });
+    });
+  });
 });

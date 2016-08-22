@@ -1,4 +1,5 @@
 import 'babel-polyfill';// for async/await
+import R from 'ramda';
 import requestLib from 'request';
 import cheerio from 'cheerio';
 import client from 'cheerio-httpcli';
@@ -38,7 +39,11 @@ export default class Scraper {
               // 最初のentryタグは関係ないのでスキップする。
               return; 
             }
-            reviews.push(new Review(id, date, title, content, rating, version, author));
+            
+            if (!R.contains(id, R.map(x => x.id, reviews))) {
+              reviews.push(new Review(id, date, title, content, rating, version, author));
+            }
+            
           });
 
           if (isFinished || !nextPage || (firstPage == lastPage)) {
@@ -125,9 +130,7 @@ export default class Scraper {
     
     do {
       tmpReviews = await fetchBody(id, page);
-      for (const review of tmpReviews) {
-        allReviews.push(review);
-      }
+      tmpReviews.forEach(x => allReviews.push(x));
       page++;
     } while (tmpReviews.length === reviewCountPerPage);
     

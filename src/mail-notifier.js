@@ -1,4 +1,5 @@
 import 'babel-polyfill';// for async/await
+import R from 'ramda';
 import nodemailer from 'nodemailer';
 import smtpTransport from 'nodemailer-smtp-transport';
 import config from '../config';
@@ -30,6 +31,10 @@ export default class MailNotifier {
     this.logger.info(`Finished sending mail ${subject}`);
   }
 
+  rating2star(rating) {
+    return R.reduce((a, b) => a + b, [], R.times((i) => i < rating ? '★' : '☆', 5));
+  }
+
   async notifyAsync(appReviewInfoList, platformType) {
     try {
       let mailBody = '';
@@ -40,7 +45,7 @@ export default class MailNotifier {
 
       for (const appReviewInfo of appReviewInfoList) {
         // 昨日以降のレビューを新着レビューとして判定する。
-        const reviewsOfToday = appReviewInfo.reviews.filter((review) => { return new Date(review.date) > yesterday; });
+        const reviewsOfToday = appReviewInfo.reviews.filter((review) => new Date(review.date) > yesterday);
 
         if (reviewsOfToday.length > 0) {
           mailBody += `${LF}■${appReviewInfo.name}${LF}`
@@ -49,8 +54,9 @@ export default class MailNotifier {
             hasNewReviews = true;
             mailBody += `date: ${review.date}${LF}title: ${review.title}${LF}`
                     + `content: ${review.content}${LF}`
-                    + `version: ${review.version}${LF}`
                     + `author: '${review.author}${LF}`
+                    + `rating: ${this.rating2star(review.rating)}${LF}`
+                    + `version: ${review.version}${LF}`
                     + `------------------------------${LF}`;
           });
         }
