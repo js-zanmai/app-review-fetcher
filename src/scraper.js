@@ -94,7 +94,7 @@ export default class Scraper {
         const reviewBody = $(element).find('.review-body.with-review-wrapper');
         const title = $(reviewBody).find('.review-title').text();
         const content = $(reviewBody).text().replace(title, '').trim();
-        const author = $(element).find('.author-name > a').text();
+        const author = $(reviewInfo).find('.author-name').text().trim();
         
         reviews.push(new Review(id, updated, title, content, rating, '-', author));
       });
