@@ -53,16 +53,16 @@ describe('MailNotifier', () => {
           return `${date.getFullYear()}/${util.zeroPadding(date.getMonth() + 1)}/${util.zeroPadding(date.getDate())}`;
         };
 
-        const yesterday = util.getYesterday();
-        const yesterdayStr = dateToStr(yesterday);
+        const now = new Date();
+        const dayBeforeYesterdayStr = dateToStr(new Date(now.getFullYear(), now.getMonth(), now.getDate() - 2));
         const id = 'id';
         const title = 'title';
         const content = 'content';
         const rating = 5;
         const version = 1.0;
         const author = 'author';
-        const yesterdayReview1 = new Review(id, yesterday, title, content, rating, version, author);
-        const yesterdayReview2 = new Review(id, yesterdayStr, title, content, rating, version, author);
+        const yesterdayReview1 = new Review(id, dayBeforeYesterdayStr, title, content, rating, version, author);
+        const yesterdayReview2 = new Review(id, dayBeforeYesterdayStr, title, content, rating, version, author);
         const appReviewInfoList = [new AppReviewInfo('hoge', [yesterdayReview1]), new AppReviewInfo('moge', [yesterdayReview2])];
         const mailNotifier = new MailNotifier(new DummyLogger());
         let wasCalled = false;

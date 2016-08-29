@@ -10,7 +10,7 @@ export default class ExcelGenerator {
   }
 
   generate(appReviewInfoList, platformType, outputFolder) {
-    try {      
+    try {
       const fileNameWithoutExtension = platformType === PlatformType.APPSTORE ? 'AppStoreReviews' : 'GooglePlayReviews';
       this.logger.info(`Start generate ${fileNameWithoutExtension}`);
       const xlsx = officegen('xlsx');
@@ -19,7 +19,7 @@ export default class ExcelGenerator {
         const worksheet = xlsx.makeNewSheet();
         worksheet.name = appReviewInfo.name;
         worksheet.data[0] = ['date', 'title', 'content', 'rating', 'version', 'author'];
-        appReviewInfo.reviews.forEach((review, index) => {  
+        appReviewInfo.reviews.forEach((review, index) => {
           worksheet.data[index + 1] = [review.date, review.title, review.content, parseInt(review.rating, 10), review.version, review.author];
         });
       }

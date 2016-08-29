@@ -45,19 +45,20 @@ export default class MailNotifier {
 
       for (const appReviewInfo of appReviewInfoList) {
         // 昨日以降のレビューを新着レビューとして判定する。
-        const reviewsOfToday = appReviewInfo.reviews.filter((review) => new Date(review.date) > yesterday);
+        const reviewsOfToday = appReviewInfo.reviews.filter((review) => new Date(review.date) >= yesterday);
 
         if (reviewsOfToday.length > 0) {
           mailBody += `${LF}■${appReviewInfo.name}${LF}`
                   + `------------------------------${LF}`;
           reviewsOfToday.forEach((review) => {          
             hasNewReviews = true;
-            mailBody += `date: ${review.date}${LF}title: ${review.title}${LF}`
-                    + `content: ${review.content}${LF}`
-                    + `author: '${review.author}${LF}`
-                    + `rating: ${this.rating2star(review.rating)}${LF}`
-                    + `version: ${review.version}${LF}`
-                    + `------------------------------${LF}`;
+            mailBody += `date: ${review.date}${LF}`
+                     + `title: ${review.title}${LF}`
+                     + `content: ${review.content}${LF}`
+                     + `author: '${review.author}${LF}`
+                     + `rating: ${this.rating2star(review.rating)}${LF}`
+                     + `version: ${review.version}${LF}`
+                     + `------------------------------${LF}`;
           });
         }
       }
