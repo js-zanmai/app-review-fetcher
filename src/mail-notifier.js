@@ -32,7 +32,7 @@ export default class MailNotifier {
   }
 
   rating2star(rating) {
-    return R.reduce((a, b) => a + b, [], R.times((i) => i < rating ? '★' : '☆', 5));
+    return R.times((i) => i < rating ? '★' : '☆', 5).reduce((a, b) => a + b);
   }
 
   async notifyAsync(appReviewInfoList, platformType) {
@@ -55,7 +55,7 @@ export default class MailNotifier {
             mailBody += `date: ${review.date}${LF}`
                      + `title: ${review.title}${LF}`
                      + `content: ${review.content}${LF}`
-                     + `author: '${review.author}${LF}`
+                     + `author: ${review.author}${LF}`
                      + `rating: ${this.rating2star(review.rating)}${LF}`
                      + `version: ${review.version}${LF}`
                      + `------------------------------${LF}`;
