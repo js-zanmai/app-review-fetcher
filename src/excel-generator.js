@@ -35,7 +35,7 @@ export default class ExcelGenerator {
     row.eachCell((cell, cellNumber) => {
       const fontStyle = {
         name: 'メイリオ',
-        size: 11 
+        size: 11
       };
 
       if (cellNumber === 4) {
@@ -97,6 +97,7 @@ export default class ExcelGenerator {
     worksheet.getColumn(1).width = 25;
     worksheet.getColumn(2).width = 25;
     worksheet.getColumn(3).width = 100;
+    worksheet.getColumn(4).width = 7;
     worksheet.getColumn(6).width = 25;
 
     worksheet.eachRow((row, rowNumber) => {
@@ -119,7 +120,7 @@ export default class ExcelGenerator {
       
       for (const appReviewInfo of appReviewInfoList) {
         const worksheet = workbook.addWorksheet(appReviewInfo.name);
-        worksheet.addRow(['date', 'title', 'content', 'rating', 'version', 'author']);
+        worksheet.addRow(['date', 'title', 'content', 'star', 'version', 'author']);
 
         appReviewInfo.reviews.forEach((review) => {
           worksheet.addRow([review.date, review.title, review.content, parseInt(review.rating, 10), review.version, review.author]);
