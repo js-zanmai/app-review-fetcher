@@ -4,7 +4,6 @@ import nodemailer from 'nodemailer';
 import smtpTransport from 'nodemailer-smtp-transport';
 import config from '../config';
 import PlatformType from './platform';
-import util from './utility';
 
 export default class MailNotifier {
 
