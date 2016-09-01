@@ -54,7 +54,7 @@ export default class SqliteArchiver {
     }); 
   }
 
-  async archiveIfNotExistsAsync(appReviewInfoList, platformType) {
+  async archiveAsync(appReviewInfoList, platformType) {
     await this.db.run('BEGIN');
     try {
       const tableName = platformType === PlatformType.APPSTORE ? 'appstore' : 'googleplay'; 

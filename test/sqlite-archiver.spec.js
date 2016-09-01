@@ -55,7 +55,7 @@ describe('SqliteArchiver', () => {
         const review2 = new Review(id2, updated, title2, content, rating, version, author);
         const appReviewInfoList = [new AppReviewInfo(app1, [review1]), new AppReviewInfo(app2, [review2])];
         // Act
-        const newAppReviewInfoList = await sqliteArchiver.archiveIfNotExistsAsync(appReviewInfoList, test.platformType);
+        const newAppReviewInfoList = await sqliteArchiver.archiveAsync(appReviewInfoList, test.platformType);
         
         const reviewList1 = await sqliteArchiver.selectAllReviewAsync(app1, test.tableName);
         const reviewList2 = await sqliteArchiver.selectAllReviewAsync(app2, test.tableName);
@@ -66,7 +66,7 @@ describe('SqliteArchiver', () => {
         
         let wasCalled = false;
         SqliteArchiver.insertReviews = (reviews, appName, tableName) => { wasCalled = true; };
-        const emptyArray = await sqliteArchiver.archiveIfNotExistsAsync(appReviewInfoList, test.platformType);
+        const emptyArray = await sqliteArchiver.archiveAsync(appReviewInfoList, test.platformType);
         
         expect(wasCalled).to.be.false;
         expect(emptyArray.length).to.equal(0);
