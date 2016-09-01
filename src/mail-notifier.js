@@ -49,7 +49,7 @@ export default class MailNotifier {
 
         if (reviewsOfToday.length > 0) {
           mailBody += `${LF}■${appReviewInfo.name}${LF}`
-                  + `------------------------------${LF}`;
+                   + `------------------------------${LF}`;
           reviewsOfToday.forEach((review) => {
             hasNewReviews = true;
             mailBody += `date: ${review.date}${LF}`

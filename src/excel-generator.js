@@ -12,7 +12,7 @@ export default class ExcelGenerator {
     row.eachCell((cell) => {
       cell.font = {
         name: 'HG丸ｺﾞｼｯｸM-PRO',
-        size: 12,
+        size: 10,
         italic: true,
         bold: true
       };
@@ -35,7 +35,7 @@ export default class ExcelGenerator {
     row.eachCell((cell, cellNumber) => {
       const fontStyle = {
         name: 'メイリオ',
-        size: 11
+        size: 10
       };
 
       if (cellNumber === 4) {
@@ -94,11 +94,11 @@ export default class ExcelGenerator {
   }
 
   formatWorksheet(worksheet) {
-    worksheet.getColumn(1).width = 25;
-    worksheet.getColumn(2).width = 25;
-    worksheet.getColumn(3).width = 100;
+    worksheet.getColumn(1).width = 20;
+    worksheet.getColumn(2).width = 20;
+    worksheet.getColumn(3).width = 75;
     worksheet.getColumn(4).width = 7;
-    worksheet.getColumn(6).width = 25;
+    worksheet.getColumn(6).width = 18;
 
     worksheet.eachRow((row, rowNumber) => {
       if (rowNumber === 1 /* Header row */) {
