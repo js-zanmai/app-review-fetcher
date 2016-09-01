@@ -2,6 +2,7 @@ import 'babel-polyfill';// for async/await
 import sqlite3 from 'sqlite3';
 import R from 'ramda';
 import PlatformType from './platform';
+import AppReviewInfo from './app-review-info';
 
 
 export default class SqliteArchiver {
@@ -53,12 +54,13 @@ export default class SqliteArchiver {
     }); 
   }
 
-  async archiveAsync(appReviewInfoList, platformType) {
+  async archiveIfNotExistsAsync(appReviewInfoList, platformType) {
     await this.db.run('BEGIN');
     try {
       const tableName = platformType === PlatformType.APPSTORE ? 'appstore' : 'googleplay'; 
       this.initTableIfNotExists(tableName);
       
+      const newAppReviewInfoList = [];
       for (const appReviewInfo of appReviewInfoList) {
         const savedReviews = await this.selectAllReviewAsync(appReviewInfo.name, tableName);
         const isSameReview = (saved, review) => (review.date === saved.date) && (review.title === saved.title) && (review.author === saved.author);
@@ -70,10 +72,13 @@ export default class SqliteArchiver {
           this.logger.info(`New review is nothing. [Table Name] ${tableName} [App name] ${appReviewInfo.name}`);
         } else {
           this.insertReviews(newReviews, appReviewInfo.name, tableName);
+          newAppReviewInfoList.push(new AppReviewInfo(appReviewInfo.name, newReviews));
           this.logger.info(`Inserted ${newReviews.length} number of reviews. [Table Name] ${tableName} [App name] ${appReviewInfo.name}`);
         }
       }
       await this.db.run('COMMIT');
+      return newAppReviewInfoList;
+
     } catch (error) {
       await this.db.run('ROLLBACK');
       this.logger.error(error);

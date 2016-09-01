@@ -1,4 +1,5 @@
 import 'babel-polyfill';// for async/await
+import R from 'ramda';
 import AppReviewInfo from './app-review-info';
 import config from '../config';
 import util from './utility';
@@ -36,25 +37,20 @@ async function executeAsync(platformType) {
   try {
     const appReviewInfoList = await scrapeAppReviewInfoList(platformType);
 
-    if (config.service.excel) {
-      const excelGenerator = new ExcelGenerator(logger);
-      excelGenerator.generate(appReviewInfoList, platformType, `${__dirname}/../out`);
-    }
-
-    if (config.service.sqlite) {
-      const sqliteArchiver = new SqliteArchiver(`${__dirname}/../out/reviews.sqlite`, logger);
-      try {
-        await sqliteArchiver.archiveAsync(appReviewInfoList, platformType);
-      } finally {
-        sqliteArchiver.close();
+    const excelGenerator = new ExcelGenerator(logger);
+    excelGenerator.generate(appReviewInfoList, platformType, `${__dirname}/../out`);
+    
+    const sqliteArchiver = new SqliteArchiver(`${__dirname}/../out/reviews.sqlite`, logger);
+    
+    try {
+      const newAppReviewInfoList = await sqliteArchiver.archiveAsync(appReviewInfoList, platformType);
+      if (config.mail.IsEnabled && !R.isEmpty(newAppReviewInfoList)) {
+        const mailNotifier = new MailNotifier(logger);
+        await mailNotifier.notifyAsync(newAppReviewInfoList, platformType);
       }
+    } finally {
+      sqliteArchiver.close();
     }
-
-    if (config.service.mail) {
-      const mailNotifier = new MailNotifier(logger);
-      await mailNotifier.notifyAsync(appReviewInfoList, platformType);
-    }
-
   } catch (error) {
     logger.error(error);
   }

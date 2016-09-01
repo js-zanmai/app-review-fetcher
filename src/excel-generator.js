@@ -13,8 +13,7 @@ export default class ExcelGenerator {
       cell.font = {
         name: 'HG丸ｺﾞｼｯｸM-PRO',
         size: 10,
-        italic: true,
-        bold: true
+        italic: true
       };
 
       cell.border = {
