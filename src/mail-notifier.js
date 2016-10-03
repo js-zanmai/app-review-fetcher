@@ -20,7 +20,7 @@ export default class MailNotifier {
     const transporter = nodemailer.createTransport(smtpTransport(smtpConfig));
     const mailOptions = {
       from: config.mail.fromAddress,
-      to: config.mail.toAddress,
+      to: config.mail.toAddress.join(', '),
       subject: subject,
       text: mailBody
     };
@@ -44,7 +44,7 @@ export default class MailNotifier {
       let mailBody = '';
       const LF = '\n';
       const mailSubject = platformType === PlatformType.APPSTORE ? '【AppStore新着レビュー】' : '【GooglePlay新着レビュー】';
-
+      
       for (const appReviewInfo of appReviewInfoList) {
         mailBody += `${LF}■${appReviewInfo.name}${LF}`
                  + `------------------------------${LF}`;

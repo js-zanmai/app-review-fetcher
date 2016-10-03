@@ -44,9 +44,13 @@ async function executeAsync(platformType) {
     
     try {
       const newAppReviewInfoList = await sqliteArchiver.archiveAsync(appReviewInfoList, platformType);
-      if (config.mail.IsEnabled && !R.isEmpty(newAppReviewInfoList)) {
+      const now = new Date();
+      const threeDaysAgo = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 3);
+      // 稀に古いレビューが返ってくることがあったため、DBに存在していない、かつ、直近３日以内のレビューを新着とする。
+      const targetReviewInfoList = newAppReviewInfoList.filter((review) => new Date(review.date) >= threeDaysAgo);
+      if (config.mail.IsEnabled && !R.isEmpty(targetReviewInfoList)) {
         const mailNotifier = new MailNotifier(logger);
-        await mailNotifier.notifyAsync(newAppReviewInfoList, platformType);
+        await mailNotifier.notifyAsync(targetReviewInfoList, platformType);
       }
     } finally {
       sqliteArchiver.close();
