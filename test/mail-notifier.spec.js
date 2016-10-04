@@ -23,7 +23,7 @@ describe('MailNotifier', () => {
           return `${date.getFullYear()}/${util.zeroPadding(date.getMonth() + 1)}/${util.zeroPadding(date.getDate())}`;
         };
 
-        const yesterday = util.getYesterday();
+        const yesterday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
         const todayStr = dateToStr(now);
         const yesterdayStr = dateToStr(yesterday);
         const id = 'id';
@@ -47,28 +47,12 @@ describe('MailNotifier', () => {
 
     tests.forEach((test) => {
       it(`should not be notified ${test.subject}`, () => {
-        
         // Arrange
-        const dateToStr = (date) => { 
-          return `${date.getFullYear()}/${util.zeroPadding(date.getMonth() + 1)}/${util.zeroPadding(date.getDate())}`;
-        };
-
-        const now = new Date();
-        const dayBeforeYesterdayStr = dateToStr(new Date(now.getFullYear(), now.getMonth(), now.getDate() - 2));
-        const id = 'id';
-        const title = 'title';
-        const content = 'content';
-        const rating = 5;
-        const version = 1.0;
-        const author = 'author';
-        const yesterdayReview1 = new Review(id, dayBeforeYesterdayStr, title, content, rating, version, author);
-        const yesterdayReview2 = new Review(id, dayBeforeYesterdayStr, title, content, rating, version, author);
-        const appReviewInfoList = [new AppReviewInfo('hoge', [yesterdayReview1]), new AppReviewInfo('moge', [yesterdayReview2])];
         const mailNotifier = new MailNotifier(new DummyLogger());
         let wasCalled = false;
         mailNotifier.sendMailAsync = (subject, mailBody) => { wasCalled = true; };
         // Act
-        mailNotifier.notifyAsync(appReviewInfoList, test.platformType);
+        mailNotifier.notifyAsync([], test.platformType);
         // Assert
         expect(wasCalled).to.be.false;
       });

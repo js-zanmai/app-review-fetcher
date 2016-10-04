@@ -4,7 +4,6 @@ import nodemailer from 'nodemailer';
 import smtpTransport from 'nodemailer-smtp-transport';
 import config from '../config';
 import PlatformType from './platform';
-import util from './utility';
 
 export default class MailNotifier {
 
@@ -21,7 +20,7 @@ export default class MailNotifier {
     const transporter = nodemailer.createTransport(smtpTransport(smtpConfig));
     const mailOptions = {
       from: config.mail.fromAddress,
-      to: config.mail.toAddress,
+      to: config.mail.toAddress.join(', '),
       subject: subject,
       text: mailBody
     };
@@ -32,43 +31,36 @@ export default class MailNotifier {
   }
 
   rating2star(rating) {
-    return R.reduce((a, b) => a + b, [], R.times((i) => i < rating ? '★' : '☆', 5));
+    return R.times((i) => i < rating ? '★' : '☆', 5).reduce((a, b) => a + b);
   }
 
   async notifyAsync(appReviewInfoList, platformType) {
+    if (R.isEmpty(appReviewInfoList)) {
+      this.logger.info('New review is nothing');
+      return;
+    }
+
     try {
       let mailBody = '';
-      let hasNewReviews = false;
       const LF = '\n';
-      const yesterday = util.getYesterday();
       const mailSubject = platformType === PlatformType.APPSTORE ? '【AppStore新着レビュー】' : '【GooglePlay新着レビュー】';
-
+      
       for (const appReviewInfo of appReviewInfoList) {
-        // 昨日以降のレビューを新着レビューとして判定する。
-        const reviewsOfToday = appReviewInfo.reviews.filter((review) => new Date(review.date) >= yesterday);
-
-        if (reviewsOfToday.length > 0) {
-          mailBody += `${LF}■${appReviewInfo.name}${LF}`
-                  + `------------------------------${LF}`;
-          reviewsOfToday.forEach((review) => {          
-            hasNewReviews = true;
-            mailBody += `date: ${review.date}${LF}`
-                     + `title: ${review.title}${LF}`
-                     + `content: ${review.content}${LF}`
-                     + `author: '${review.author}${LF}`
-                     + `rating: ${this.rating2star(review.rating)}${LF}`
-                     + `version: ${review.version}${LF}`
-                     + `------------------------------${LF}`;
-          });
-        }
+        mailBody += `${LF}■${appReviewInfo.name}${LF}`
+                 + `------------------------------${LF}`;
+        appReviewInfo.reviews.forEach((review) => {
+          mailBody += `date: ${review.date}${LF}`
+                    + `title: ${review.title}${LF}`
+                    + `content: ${review.content}${LF}`
+                    + `author: ${review.author}${LF}`
+                    + `rating: ${this.rating2star(review.rating)}${LF}`
+                    + `version: ${review.version}${LF}`
+                    + `------------------------------${LF}`;
+        });
       }
 
-      if (hasNewReviews) {
-        this.logger.info(`New arrivals!!! [subject] ${mailSubject} [body] ${mailBody}`);
-        await this.sendMailAsync(mailSubject, mailBody);
-      } else {
-        this.logger.info(`${mailSubject} is nothing`);
-      }
+      this.logger.info(`New arrivals!!! [subject] ${mailSubject} [body] ${mailBody}`);
+      await this.sendMailAsync(mailSubject, mailBody);
 
     } catch (error) {
       this.logger.error(error);

@@ -15,13 +15,6 @@ describe('utility', () => {
     });
   });
   
-  describe('#getYesterday()', () => {
-    it('昨日の時刻情報を取得する。', () => {
-      const now = new Date();
-      expect(util.getYesterday().getDate()).to.equal(now.getDate() - 1);
-    });
-  });
-
   describe('#getLogger()', () => {
     it('shoud initialized logger instance', () => {
       const logger = util.getLogger();

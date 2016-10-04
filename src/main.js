@@ -1,4 +1,5 @@
 import 'babel-polyfill';// for async/await
+import R from 'ramda';
 import AppReviewInfo from './app-review-info';
 import config from '../config';
 import util from './utility';
@@ -36,25 +37,24 @@ async function executeAsync(platformType) {
   try {
     const appReviewInfoList = await scrapeAppReviewInfoList(platformType);
 
-    if (config.service.excel) {
-      const excelGenerator = new ExcelGenerator(logger);
-      excelGenerator.generate(appReviewInfoList, platformType, `${__dirname}/../out`);
-    }
-
-    if (config.service.sqlite) {
-      const sqliteArchiver = new SqliteArchiver(`${__dirname}/../out/reviews.sqlite`, logger);
-      try {
-        await sqliteArchiver.archiveAsync(appReviewInfoList, platformType);
-      } finally {
-        sqliteArchiver.close();
+    const excelGenerator = new ExcelGenerator(logger);
+    excelGenerator.generate(appReviewInfoList, platformType, `${__dirname}/../out`);
+    
+    const sqliteArchiver = new SqliteArchiver(`${__dirname}/../out/reviews.sqlite`, logger);
+    
+    try {
+      const newAppReviewInfoList = await sqliteArchiver.archiveAsync(appReviewInfoList, platformType);
+      const now = new Date();
+      const threeDaysAgo = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 3);
+      // 稀に古いレビューが返ってくることがあったため、DBに存在していない、かつ、直近３日以内のレビューを新着とする。
+      const targetReviewInfoList = newAppReviewInfoList.filter((review) => new Date(review.date) >= threeDaysAgo);
+      if (config.mail.IsEnabled && !R.isEmpty(targetReviewInfoList)) {
+        const mailNotifier = new MailNotifier(logger);
+        await mailNotifier.notifyAsync(targetReviewInfoList, platformType);
       }
+    } finally {
+      sqliteArchiver.close();
     }
-
-    if (config.service.mail) {
-      const mailNotifier = new MailNotifier(logger);
-      await mailNotifier.notifyAsync(appReviewInfoList, platformType);
-    }
-
   } catch (error) {
     logger.error(error);
   }

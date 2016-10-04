@@ -5,15 +5,11 @@
   "googlePlay": [
     { "id": "jp.co.fujixerox.mcopy", "name": "セブン−イレブン マルチコピー" }
   ],
-  "service": {
-    "excel": true,
-    "sqlite": true,
-    "mail": true
-  },
   "mail": {
+    "IsEnabled": true,
     "host": "localhost",
     "port": 25,
     "fromAddress": "",
-    "toAddress": ""
+    "toAddress": [""]
   }
 }
