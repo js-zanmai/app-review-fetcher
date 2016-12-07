@@ -18,6 +18,7 @@ async function scrapeAppReviewInfoListBody(appSettings, asyncFunc) {
     const reviews = await asyncFunc(appSetting.id);
     logger.info(`${reviews.length} reviews fetched. [App name] ${appSetting.name}`);
     appReviewInfoList.push(new AppReviewInfo(appSetting.name, reviews));
+    await util.sleep();
   }
 
   return appReviewInfoList;
@@ -44,13 +45,9 @@ async function executeAsync(platformType) {
     
     try {
       const newAppReviewInfoList = await sqliteArchiver.archiveAsync(appReviewInfoList, platformType);
-      const now = new Date();
-      const threeDaysAgo = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 3);
-      // 稀に古いレビューが返ってくることがあったため、DBに存在していない、かつ、直近３日以内のレビューを新着とする。
-      const targetReviewInfoList = newAppReviewInfoList.filter((review) => new Date(review.date) >= threeDaysAgo);
-      if (config.mail.IsEnabled && !R.isEmpty(targetReviewInfoList)) {
+      if (config.mail.IsEnabled && !R.isEmpty(newAppReviewInfoList)) {
         const mailNotifier = new MailNotifier(logger);
-        await mailNotifier.notifyAsync(targetReviewInfoList, platformType);
+        await mailNotifier.notifyAsync(newAppReviewInfoList, platformType);
       }
     } finally {
       sqliteArchiver.close();
