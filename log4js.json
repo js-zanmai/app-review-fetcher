@@ -4,7 +4,7 @@
       "type": "file",
       "category": "fileAppender",
       "filename": "logs/app_review_fetcher.log",
-      "maxLogSize": 20480,
+      "maxLogSize": 2097152,
       "backups": 10,
       "layout": {
         "type": "pattern",
