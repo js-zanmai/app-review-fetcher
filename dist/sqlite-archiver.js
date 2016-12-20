@@ -79,6 +79,18 @@ var SqliteArchiver = function () {
         stmt.finalize();
       });
     }
+
+    // 稀に古いレビューが返ってくることがあったため、DBに存在していない、かつ、直近３日以内のレビューを新着レビューと判定する。
+
+  }, {
+    key: 'extractRecentReviews',
+    value: function extractRecentReviews(reviews) {
+      var now = new Date();
+      var threeDaysAgo = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 3);
+      return reviews.filter(function (review) {
+        return new Date(review.date).getTime() >= threeDaysAgo.getTime();
+      });
+    }
   }, {
     key: 'archiveAsync',
     value: function archiveAsync(appReviewInfoList, platformType) {
@@ -106,7 +118,7 @@ var SqliteArchiver = function () {
               _context2.prev = 9;
 
               _loop = function _callee() {
-                var appReviewInfo, savedReviews, isSameReview, curriedIsSameReview, isNewReview, newReviews;
+                var appReviewInfo, savedReviews, isSameReview, curriedIsSameReview, isNewReview, newReviews, recentReviews;
                 return regeneratorRuntime.async(function _callee$(_context) {
                   while (1) {
                     switch (_context.prev = _context.next) {
@@ -135,7 +147,11 @@ var SqliteArchiver = function () {
                           _this4.logger.info('New review is nothing. [Table Name] ' + tableName + ' [App name] ' + appReviewInfo.name);
                         } else {
                           _this4.insertReviews(newReviews, appReviewInfo.name, tableName);
-                          newAppReviewInfoList.push(new _appReviewInfo2.default(appReviewInfo.name, newReviews));
+                          recentReviews = _this4.extractRecentReviews(newReviews);
+
+                          if (!_ramda2.default.isEmpty(recentReviews)) {
+                            newAppReviewInfoList.push(new _appReviewInfo2.default(appReviewInfo.name, recentReviews));
+                          }
                           _this4.logger.info('Inserted ' + newReviews.length + ' number of reviews. [Table Name] ' + tableName + ' [App name] ' + appReviewInfo.name);
                         }
 

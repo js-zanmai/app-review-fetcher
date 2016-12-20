@@ -54,6 +54,15 @@ export default class SqliteArchiver {
     }); 
   }
 
+  // 稀に古いレビューが返ってくることがあったため、DBに存在していない、かつ、直近３日以内のレビューを新着レビューと判定する。
+  extractRecentReviews(reviews) {
+    const now = new Date();
+    const threeDaysAgo = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 3);
+    return reviews.filter((review) => {
+      return new Date(review.date).getTime() >= threeDaysAgo.getTime();
+    });
+  }
+
   async archiveAsync(appReviewInfoList, platformType) {
     await this.db.run('BEGIN');
     try {
@@ -72,7 +81,10 @@ export default class SqliteArchiver {
           this.logger.info(`New review is nothing. [Table Name] ${tableName} [App name] ${appReviewInfo.name}`);
         } else {
           this.insertReviews(newReviews, appReviewInfo.name, tableName);
-          newAppReviewInfoList.push(new AppReviewInfo(appReviewInfo.name, newReviews));
+          const recentReviews = this.extractRecentReviews(newReviews);
+          if (!R.isEmpty(recentReviews)) {
+            newAppReviewInfoList.push(new AppReviewInfo(appReviewInfo.name, recentReviews));
+          }
           this.logger.info(`Inserted ${newReviews.length} number of reviews. [Table Name] ${tableName} [App name] ${appReviewInfo.name}`);
         }
       }
