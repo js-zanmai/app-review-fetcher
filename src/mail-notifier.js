@@ -51,7 +51,7 @@ export default class MailNotifier {
         appReviewInfo.reviews.forEach((review) => {
           mailBody += `date: ${review.date}${LF}`
                     + `title: ${review.title}${LF}`
-                    + `content: ${review.content}${LF}`
+                    + `comment: ${review.content}${LF}`
                     + `author: ${review.author}${LF}`
                     + `rating: ${this.rating2star(review.rating)}${LF}`
                     + `version: ${review.version}${LF}`

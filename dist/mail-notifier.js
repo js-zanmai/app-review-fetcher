@@ -125,7 +125,7 @@ var MailNotifier = function () {
 
                           mailBody += LF + '\u25A0' + appReviewInfo.name + LF + ('------------------------------' + LF);
                           appReviewInfo.reviews.forEach(function (review) {
-                            mailBody += 'date: ' + review.date + LF + ('title: ' + review.title + LF) + ('content: ' + review.content + LF) + ('author: ' + review.author + LF) + ('rating: ' + _this.rating2star(review.rating) + LF) + ('version: ' + review.version + LF) + ('------------------------------' + LF);
+                            mailBody += 'date: ' + review.date + LF + ('title: ' + review.title + LF) + ('comment: ' + review.content + LF) + ('author: ' + review.author + LF) + ('rating: ' + _this.rating2star(review.rating) + LF) + ('version: ' + review.version + LF) + ('------------------------------' + LF);
                           });
                         }
 
