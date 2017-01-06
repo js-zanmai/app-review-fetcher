@@ -14,27 +14,27 @@
   "license": "MIT",
   "dependencies": {
     "babel-polyfill": "^6.13.0",
-    "cheerio": "^0.20.0",
+    "cheerio": "^0.22.0",
     "cheerio-httpcli": "^0.6.8",
     "exceljs": "^0.2.16",
-    "log4js": "^0.6.38",
+    "log4js": "^1.1.0",
     "nodemailer": "^2.4.2",
     "nodemailer-smtp-transport": "^2.6.0",
-    "ramda": "^0.22.1",
+    "ramda": "^0.23.0",
     "request": "^2.74.0",
     "sqlite3": "^3.1.4"
   },
   "devDependencies": {
     "babel-cli": "^6.10.1",
     "babel-core": "^6.10.4",
-    "babel-eslint": "^6.1.0",
+    "babel-eslint": "^7.1.1",
     "babel-plugin-syntax-async-functions": "^6.13.0",
     "babel-plugin-transform-regenerator": "^6.11.4",
     "babel-preset-es2015": "^6.9.0",
     "babel-register": "^6.9.0",
     "chai": "^3.5.0",
-    "eslint": "^2.12.0",
+    "eslint": "^3.12.2",
     "isparta": "^4.0.0",
-    "mocha": "^2.5.3"
+    "mocha": "^3.2.0"
   }
 }

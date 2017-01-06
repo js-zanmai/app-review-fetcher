@@ -37,7 +37,7 @@ describe('SqliteArchiver', () => {
     ];
 
     tests.forEach((test) => {
-      it(`should inserted the review ${test.tableName}`, async function(done) {
+      it(`should inserted the review ${test.tableName}`, async function() {
         this.timeout(5000);
         // Arrange
         const app1 = 'hoge';
@@ -71,8 +71,6 @@ describe('SqliteArchiver', () => {
         
         expect(wasCalled).to.be.false;
         expect(emptyArray.length).to.equal(0);
-        
-        done();
       });
     });
   });
