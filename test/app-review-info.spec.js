@@ -1,4 +1,4 @@
-import { expect } from 'chai';
+import assert from 'power-assert';
 import Review from '../src/review';
 import AppReviewInfo from '../src/app-review-info';
 
@@ -18,8 +18,8 @@ describe('app-review-info', () => {
       // Act
       const appReviewInfo = new AppReviewInfo(appName, reviews);
       // Assert
-      expect(appReviewInfo.name).to.equal(appName);
-      expect(appReviewInfo.reviews).to.equal(reviews);
+      assert(appReviewInfo.name === appName);
+      assert(appReviewInfo.reviews === reviews);
     });
   });
 });

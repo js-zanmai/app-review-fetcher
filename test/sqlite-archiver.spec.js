@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { expect } from 'chai';
+import assert from 'power-assert';
 import sqlite3 from 'sqlite3';
 import PlatformType from '../src/platform';
 import Review from '../src/review';
@@ -61,16 +61,16 @@ describe('SqliteArchiver', () => {
         const reviewList1 = await sqliteArchiver.selectAllReviewAsync(app1, test.tableName);
         const reviewList2 = await sqliteArchiver.selectAllReviewAsync(app2, test.tableName);
         // Assert
-        expect(newAppReviewInfoList.length).to.equal(appReviewInfoList.length);
-        expect(reviewList1[0].title).to.equal(title1);
-        expect(reviewList2[0].title).to.equal(title2);
-        
+        assert(newAppReviewInfoList.length === appReviewInfoList.length);
+        assert(reviewList1[0].title === title1);
+        assert(reviewList2[0].title === title2);
+
         let wasCalled = false;
-        SqliteArchiver.insertReviews = (reviews, appName, tableName) => { wasCalled = true; };
+        SqliteArchiver.insertReviews = () => { wasCalled = true; };
         const emptyArray = await sqliteArchiver.archiveAsync(appReviewInfoList, test.platformType);
         
-        expect(wasCalled).to.be.false;
-        expect(emptyArray.length).to.equal(0);
+        assert(wasCalled === false);
+        assert(emptyArray.length === 0);
       });
     });
   });

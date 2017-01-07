@@ -1,4 +1,4 @@
-import { expect } from 'chai';
+import assert from 'power-assert';
 import util from '../src/utility';
 import PlatformType from '../src/platform';
 import Review from '../src/review';
@@ -37,8 +37,8 @@ describe('MailNotifier', () => {
         const appReviewInfoList = [new AppReviewInfo('hoge', [todayReview]), new AppReviewInfo('moge', [yesterdayReview])];
         const mailNotifier = new MailNotifier(new DummyLogger());
         mailNotifier.sendMailAsync = (subject, mailBody) => {
-          expect(subject).to.equal(test.subject);
-          expect(mailBody).to.be.a('string');
+          assert(subject === test.subject);
+          assert(typeof mailBody === 'string');
         };
         // Act & Assert
         mailNotifier.notifyAsync(appReviewInfoList, test.platformType);
@@ -50,11 +50,11 @@ describe('MailNotifier', () => {
         // Arrange
         const mailNotifier = new MailNotifier(new DummyLogger());
         let wasCalled = false;
-        mailNotifier.sendMailAsync = (subject, mailBody) => { wasCalled = true; };
+        mailNotifier.sendMailAsync = () => { wasCalled = true; };
         // Act
         mailNotifier.notifyAsync([], test.platformType);
         // Assert
-        expect(wasCalled).to.be.false;
+        assert(wasCalled === false);
       });
     });
   });
@@ -71,7 +71,7 @@ describe('MailNotifier', () => {
     tests.forEach((test) => {
       it(`shoud be converted to ${test.expected}`, () => {
         const mailNotifier = new MailNotifier(new DummyLogger());
-        expect(mailNotifier.rating2star(test.rating)).to.equal(test.expected);
+        assert(mailNotifier.rating2star(test.rating) === test.expected);
       });
     });
   });

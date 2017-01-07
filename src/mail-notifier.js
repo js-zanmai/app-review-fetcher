@@ -49,12 +49,12 @@ export default class MailNotifier {
         mailBody += `${LF}■${appReviewInfo.name}${LF}`
                  + `------------------------------${LF}`;
         appReviewInfo.reviews.forEach((review) => {
-          mailBody += `date: ${review.date}${LF}`
-                    + `title: ${review.title}${LF}`
-                    + `comment: ${review.content}${LF}`
-                    + `author: ${review.author}${LF}`
-                    + `rating: ${this.rating2star(review.rating)}${LF}`
-                    + `version: ${review.version}${LF}`
+          mailBody += `Date:    ${review.date}${LF}`
+                    + `Title:   ${review.title}${LF}`
+                    + `Comment: ${review.content}${LF}`
+                    + `Author:  ${review.author}${LF}`
+                    + `Rating:  ${this.rating2star(review.rating)}${LF}`
+                    + `Version: ${review.version}${LF}${LF}`
                     + `------------------------------${LF}`;
         });
       }
