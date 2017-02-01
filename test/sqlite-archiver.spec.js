@@ -45,7 +45,8 @@ describe('SqliteArchiver', () => {
         const id1 = test.tableName + 'id1';
         const id2 = test.tableName + 'id2';
         const now = new Date();
-        const updated = `${now.getFullYear()}/${now.getMonth() + 1}/${now.getDate() - 2}`; // 2日前のレビューはメール通知の対象
+        now.setDate(now.getDate() - 2); // 2日前のレビューはメール通知の対象
+        const updated = `${now.getFullYear()}/${now.getMonth() + 1}/${now.getDate()}`;
         const title1 = 'title1';
         const title2 = 'title2';
         const content = 'content';

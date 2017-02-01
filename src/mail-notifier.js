@@ -1,7 +1,6 @@
 import 'babel-polyfill';// for async/await
 import R from 'ramda';
 import nodemailer from 'nodemailer';
-import smtpTransport from 'nodemailer-smtp-transport';
 import config from '../config';
 import PlatformType from './platform';
 
@@ -17,7 +16,7 @@ export default class MailNotifier {
       port: config.mail.port
     };
 
-    const transporter = nodemailer.createTransport(smtpTransport(smtpConfig));
+    const transporter = nodemailer.createTransport(smtpConfig);
     const mailOptions = {
       from: config.mail.fromAddress,
       to: config.mail.toAddress.join(', '),

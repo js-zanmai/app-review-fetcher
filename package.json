@@ -18,8 +18,7 @@
     "cheerio-httpcli": "^0.6.8",
     "exceljs": "^0.2.16",
     "log4js": "^1.1.0",
-    "nodemailer": "^2.4.2",
-    "nodemailer-smtp-transport": "^2.6.0",
+    "nodemailer": "^3.0.0",
     "ramda": "^0.23.0",
     "request": "^2.74.0",
     "sqlite3": "^3.1.4"

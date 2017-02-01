@@ -17,10 +17,6 @@ var _nodemailer = require('nodemailer');
 
 var _nodemailer2 = _interopRequireDefault(_nodemailer);
 
-var _nodemailerSmtpTransport = require('nodemailer-smtp-transport');
-
-var _nodemailerSmtpTransport2 = _interopRequireDefault(_nodemailerSmtpTransport);
-
 var _config = require('../config');
 
 var _config2 = _interopRequireDefault(_config);
@@ -52,7 +48,7 @@ var MailNotifier = function () {
                 host: _config2.default.mail.host,
                 port: _config2.default.mail.port
               };
-              transporter = _nodemailer2.default.createTransport((0, _nodemailerSmtpTransport2.default)(smtpConfig));
+              transporter = _nodemailer2.default.createTransport(smtpConfig);
               mailOptions = {
                 from: _config2.default.mail.fromAddress,
                 to: _config2.default.mail.toAddress.join(', '),
