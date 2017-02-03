@@ -12,7 +12,7 @@ class Scraper {
   }
 
   async fetch(id) {
-    throw new TypeError('Do not call abstract method fetch from child.');
+    throw new TypeError(`Do not call abstract method, Can not fetch id = ${id}.`);
   }
 }
 

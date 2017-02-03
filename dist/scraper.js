@@ -56,7 +56,7 @@ var Scraper = function () {
         while (1) {
           switch (_context.prev = _context.next) {
             case 0:
-              throw new TypeError('Do not call abstract method fetch from child.');
+              throw new TypeError('Do not call abstract method, Can not fetch id = ' + id + '.');
 
             case 1:
             case 'end':
