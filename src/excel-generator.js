@@ -1,4 +1,4 @@
-import PlatformType from './platform';
+import Platform from './platform';
 import Excel from 'exceljs';
 import path from 'path';
 
@@ -110,7 +110,7 @@ export default class ExcelGenerator {
 
   generate(reviewMap, platform, outDir) {
     try {
-      const fileNameWithoutExtension = platform === PlatformType.APPSTORE ? 'AppStoreReviews' : 'GooglePlayReviews';
+      const fileNameWithoutExtension = platform === Platform.APPSTORE ? 'AppStoreReviews' : 'GooglePlayReviews';
       this.logger.info(`Start generate ${fileNameWithoutExtension}`);
       const workbook = new Excel.Workbook();
       const now = new Date();

@@ -89,7 +89,7 @@ var MailNotifier = function () {
         while (1) {
           switch (_context3.prev = _context3.next) {
             case 0:
-              if (!_ramda2.default.isEmpty(reviewMap)) {
+              if (!(reviewMap.size === 0)) {
                 _context3.next = 3;
                 break;
               }

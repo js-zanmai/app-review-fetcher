@@ -2,10 +2,6 @@
 
 require('babel-polyfill');
 
-var _ramda = require('ramda');
-
-var _ramda2 = _interopRequireDefault(_ramda);
-
 var _config = require('../config');
 
 var _config2 = _interopRequireDefault(_config);
@@ -36,8 +32,8 @@ var _mailNotifier2 = _interopRequireDefault(_mailNotifier);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-// for async/await
-var logger = _utility2.default.getLogger();
+var logger = _utility2.default.getLogger(); // for async/await
+
 
 function fetchReviewMapBody(appSettings, asyncFunc) {
   var map, _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, appSetting, reviews;
@@ -155,7 +151,7 @@ function fetchReviewMap(platform) {
   }, null, this);
 }
 
-function runAsync(platformType) {
+function runAsync(platform) {
   var reviewMap, excelGenerator, sqliteArchiver, newReviewMap, mailNotifier;
   return regeneratorRuntime.async(function runAsync$(_context3) {
     while (1) {
@@ -163,30 +159,30 @@ function runAsync(platformType) {
         case 0:
           _context3.prev = 0;
           _context3.next = 3;
-          return regeneratorRuntime.awrap(fetchReviewMap(platformType));
+          return regeneratorRuntime.awrap(fetchReviewMap(platform));
 
         case 3:
           reviewMap = _context3.sent;
           excelGenerator = new _excelGenerator2.default(logger);
 
-          excelGenerator.generate(reviewMap, platformType, __dirname + '/../out');
+          excelGenerator.generate(reviewMap, platform, __dirname + '/../out');
 
           sqliteArchiver = new _sqliteArchiver2.default(__dirname + '/../out/reviews.sqlite', logger);
           _context3.prev = 7;
           _context3.next = 10;
-          return regeneratorRuntime.awrap(sqliteArchiver.archiveAsync(reviewMap, platformType));
+          return regeneratorRuntime.awrap(sqliteArchiver.archiveAsync(reviewMap, platform));
 
         case 10:
           newReviewMap = _context3.sent;
 
-          if (!(_config2.default.mail.IsEnabled && !_ramda2.default.isEmpty(newReviewMap))) {
+          if (!(_config2.default.mail.IsEnabled && newReviewMap.size !== 0)) {
             _context3.next = 15;
             break;
           }
 
           mailNotifier = new _mailNotifier2.default(logger);
           _context3.next = 15;
-          return regeneratorRuntime.awrap(mailNotifier.notifyAsync(newReviewMap, platformType));
+          return regeneratorRuntime.awrap(mailNotifier.notifyAsync(newReviewMap, platform));
 
         case 15:
           _context3.prev = 15;

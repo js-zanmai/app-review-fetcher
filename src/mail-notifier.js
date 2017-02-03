@@ -2,7 +2,7 @@ import 'babel-polyfill';// for async/await
 import R from 'ramda';
 import nodemailer from 'nodemailer';
 import config from '../config';
-import PlatformType from './platform';
+import Platform from './platform';
 
 export default class MailNotifier {
 
@@ -34,7 +34,7 @@ export default class MailNotifier {
   }
 
   async notifyAsync(reviewMap, platform) {
-    if (R.isEmpty(reviewMap)) {
+    if (reviewMap.size === 0) {
       this.logger.info('New review is nothing');
       return;
     }
@@ -42,7 +42,7 @@ export default class MailNotifier {
     try {
       let mailBody = '';
       const LF = '\n';
-      const mailSubject = platform === PlatformType.APPSTORE ? '【AppStore新着レビュー】' : '【GooglePlay新着レビュー】';
+      const mailSubject = platform === Platform.APPSTORE ? '【AppStore新着レビュー】' : '【GooglePlay新着レビュー】';
       
       reviewMap.forEach((reviews, name) => {
         mailBody += `${LF}■${name}${LF}`

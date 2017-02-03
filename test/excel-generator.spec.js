@@ -1,5 +1,5 @@
 import fs from 'fs';
-import PlatformType from '../src/platform';
+import Platform from '../src/platform';
 import Review from '../src/review';
 import ExcelGenerator from '../src/excel-generator';
 import DummyLogger from './dummy-logger';
@@ -8,8 +8,8 @@ describe('ExcelGenerator', () => {
   describe('#generate()', () => {
 
     const tests = [
-      {platformType: PlatformType.APPSTORE, fileName: 'AppStoreReviews.xlsx'},
-      {platformType: PlatformType.GOOGLEPLAY, fileName: 'GooglePlayReviews.xlsx'}
+      {platform: Platform.APPSTORE, fileName: 'AppStoreReviews.xlsx'},
+      {platform: Platform.GOOGLEPLAY, fileName: 'GooglePlayReviews.xlsx'}
     ];
 
     tests.forEach((test) => {
@@ -30,7 +30,7 @@ describe('ExcelGenerator', () => {
           reviewMap.set('moge', [review]);
           const excelGenerator = new ExcelGenerator(new DummyLogger());
           // Act
-          excelGenerator.generate(reviewMap, test.platformType, __dirname);
+          excelGenerator.generate(reviewMap, test.platform, __dirname);
           // Assert
           fs.accessSync(expectedFilePath);
         } finally {

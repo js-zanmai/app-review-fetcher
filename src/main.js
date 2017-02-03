@@ -1,8 +1,7 @@
 import 'babel-polyfill';// for async/await
-import R from 'ramda';
 import config from '../config';
 import util from './utility';
-import PlatformType from './platform';
+import Platform from './platform';
 import Scraper from './scraper';
 import ExcelGenerator from './excel-generator';
 import SqliteArchiver from './sqlite-archiver';
@@ -25,27 +24,27 @@ async function fetchReviewMapBody(appSettings, asyncFunc) {
 async function fetchReviewMap(platform) {
   const scraper = new Scraper();
 
-  if (platform === PlatformType.APPSTORE) {
+  if (platform === Platform.APPSTORE) {
     return await fetchReviewMapBody(config.appStore, scraper.fetchReviewFromAppStore);
   } else {
     return await fetchReviewMapBody(config.googlePlay, scraper.fetchReviewFromGooglePlay);
   }
 }
 
-async function runAsync(platformType) {
+async function runAsync(platform) {
   try {
-    const reviewMap = await fetchReviewMap(platformType);
+    const reviewMap = await fetchReviewMap(platform);
 
     const excelGenerator = new ExcelGenerator(logger);
-    excelGenerator.generate(reviewMap, platformType, `${__dirname}/../out`);
+    excelGenerator.generate(reviewMap, platform, `${__dirname}/../out`);
     
     const sqliteArchiver = new SqliteArchiver(`${__dirname}/../out/reviews.sqlite`, logger);
     
     try {
-      const newReviewMap = await sqliteArchiver.archiveAsync(reviewMap, platformType);
-      if (config.mail.IsEnabled && !R.isEmpty(newReviewMap)) {
+      const newReviewMap = await sqliteArchiver.archiveAsync(reviewMap, platform);
+      if (config.mail.IsEnabled && (newReviewMap.size !== 0)) {
         const mailNotifier = new MailNotifier(logger);
-        await mailNotifier.notifyAsync(newReviewMap, platformType);
+        await mailNotifier.notifyAsync(newReviewMap, platform);
       }
     } finally {
       sqliteArchiver.close();
@@ -56,8 +55,8 @@ async function runAsync(platformType) {
 }
 
 async function main() {
-  await runAsync(PlatformType.APPSTORE);
-  await runAsync(PlatformType.GOOGLEPLAY);
+  await runAsync(Platform.APPSTORE);
+  await runAsync(Platform.GOOGLEPLAY);
 }
 
 main();

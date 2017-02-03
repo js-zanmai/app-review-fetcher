@@ -1,6 +1,6 @@
-const PlatformType = {
+const Platform = {
   APPSTORE: Symbol(),
   GOOGLEPLAY: Symbol()
 };
 
-export default PlatformType;
+export default Platform;

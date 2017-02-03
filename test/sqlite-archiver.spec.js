@@ -1,7 +1,7 @@
 import fs from 'fs';
 import assert from 'power-assert';
 import sqlite3 from 'sqlite3';
-import PlatformType from '../src/platform';
+import Platform from '../src/platform';
 import Review from '../src/review';
 import SqliteArchiver from '../src/sqlite-archiver';
 import DummyLogger from './dummy-logger';
@@ -31,8 +31,8 @@ describe('SqliteArchiver', () => {
   describe('#archiveAsync()', () => {
 
     const tests = [
-      {platformType: PlatformType.APPSTORE, tableName: 'appstore'},
-      {platformType: PlatformType.GOOGLEPLAY, tableName: 'googleplay'}
+      {platform: Platform.APPSTORE, tableName: 'appstore'},
+      {platform: Platform.GOOGLEPLAY, tableName: 'googleplay'}
     ];
 
     tests.forEach((test) => {
@@ -58,7 +58,7 @@ describe('SqliteArchiver', () => {
         reviewMap.set(app1, [review1]);
         reviewMap.set(app2, [review2]);
         // Act
-        const newReviewMap = await sqliteArchiver.archiveAsync(reviewMap, test.platformType);
+        const newReviewMap = await sqliteArchiver.archiveAsync(reviewMap, test.platform);
         
         const reviewList1 = await sqliteArchiver.selectAllReviewAsync(app1, test.tableName);
         const reviewList2 = await sqliteArchiver.selectAllReviewAsync(app2, test.tableName);
@@ -69,7 +69,7 @@ describe('SqliteArchiver', () => {
 
         let wasCalled = false;
         SqliteArchiver.insertReviews = () => { wasCalled = true; };
-        const emptyMap = await sqliteArchiver.archiveAsync(reviewMap, test.platformType);
+        const emptyMap = await sqliteArchiver.archiveAsync(reviewMap, test.platform);
         
         assert(wasCalled === false);
         assert(emptyMap.size === 0);

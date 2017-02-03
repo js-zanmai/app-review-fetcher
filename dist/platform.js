@@ -3,9 +3,9 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-var PlatformType = {
+var Platform = {
   APPSTORE: Symbol(),
   GOOGLEPLAY: Symbol()
 };
 
-exports.default = PlatformType;
+exports.default = Platform;

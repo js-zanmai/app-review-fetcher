@@ -1,6 +1,6 @@
 import assert from 'power-assert';
 import util from '../src/utility';
-import PlatformType from '../src/platform';
+import Platform from '../src/platform';
 import Review from '../src/review';
 import MailNotifier from '../src/mail-notifier';
 import DummyLogger from './dummy-logger';
@@ -9,8 +9,8 @@ describe('MailNotifier', () => {
   describe('#notifyAsync', () => {
 
     const tests = [
-      {platformType: PlatformType.APPSTORE, subject: '【AppStore新着レビュー】'},
-      {platformType: PlatformType.GOOGLEPLAY, subject: '【GooglePlay新着レビュー】'}
+      {platform: Platform.APPSTORE, subject: '【AppStore新着レビュー】'},
+      {platform: Platform.GOOGLEPLAY, subject: '【GooglePlay新着レビュー】'}
     ];
 
     tests.forEach((test) => {
@@ -42,7 +42,7 @@ describe('MailNotifier', () => {
           assert(typeof mailBody === 'string');
         };
         // Act & Assert
-        mailNotifier.notifyAsync(reviewMap, test.platformType);
+        mailNotifier.notifyAsync(reviewMap, test.platform);
       });
     });
 
@@ -53,7 +53,7 @@ describe('MailNotifier', () => {
         let wasCalled = false;
         mailNotifier.sendMailAsync = () => { wasCalled = true; };
         // Act
-        mailNotifier.notifyAsync([], test.platformType);
+        mailNotifier.notifyAsync(new Map(), test.platform);
         // Assert
         assert(wasCalled === false);
       });

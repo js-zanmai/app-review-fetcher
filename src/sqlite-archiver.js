@@ -1,7 +1,7 @@
 import 'babel-polyfill';// for async/await
 import sqlite3 from 'sqlite3';
 import R from 'ramda';
-import PlatformType from './platform';
+import Platform from './platform';
 
 export default class SqliteArchiver {
 
@@ -64,7 +64,7 @@ export default class SqliteArchiver {
   async archiveAsync(reviewMap, platform) {
     await this.db.run('BEGIN');
     try {
-      const tableName = platform === PlatformType.APPSTORE ? 'appstore' : 'googleplay'; 
+      const tableName = platform === Platform.APPSTORE ? 'appstore' : 'googleplay'; 
       this.initTableIfNotExists(tableName);
       
       const newReviewMap = new Map();
