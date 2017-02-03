@@ -108,26 +108,26 @@ export default class ExcelGenerator {
     });
   }
 
-  generate(appReviewInfoList, platformType, outputFolder) {
+  generate(reviewMap, platform, outDir) {
     try {
-      const fileNameWithoutExtension = platformType === PlatformType.APPSTORE ? 'AppStoreReviews' : 'GooglePlayReviews';
+      const fileNameWithoutExtension = platform === PlatformType.APPSTORE ? 'AppStoreReviews' : 'GooglePlayReviews';
       this.logger.info(`Start generate ${fileNameWithoutExtension}`);
       const workbook = new Excel.Workbook();
       const now = new Date();
       workbook.created = now;
       workbook.modified = now;
       
-      for (const appReviewInfo of appReviewInfoList) {
-        const worksheet = workbook.addWorksheet(appReviewInfo.name);
+      reviewMap.forEach((reviews, name) => {
+        const worksheet = workbook.addWorksheet(name);
         worksheet.addRow(['date', 'title', 'content', 'star', 'version', 'author']);
 
-        appReviewInfo.reviews.forEach((review) => {
+        reviews.forEach((review) => {
           worksheet.addRow([review.date, review.title, review.content, parseInt(review.rating, 10), review.version, review.author]);
         });
         this.formatWorksheet(worksheet);
-      }
+      });
 
-      const absPath = path.join(outputFolder, `${fileNameWithoutExtension}.xlsx`);
+      const absPath = path.join(outDir, `${fileNameWithoutExtension}.xlsx`);
       workbook.xlsx.writeFile(absPath)
       .then(() => {
         this.logger.info(`Finished generate ${fileNameWithoutExtension}`);

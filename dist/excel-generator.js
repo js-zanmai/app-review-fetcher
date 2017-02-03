@@ -135,54 +135,29 @@ var ExcelGenerator = function () {
     }
   }, {
     key: 'generate',
-    value: function generate(appReviewInfoList, platformType, outputFolder) {
+    value: function generate(reviewMap, platform, outDir) {
       var _this2 = this;
 
       try {
         (function () {
-          var fileNameWithoutExtension = platformType === _platform2.default.APPSTORE ? 'AppStoreReviews' : 'GooglePlayReviews';
+          var fileNameWithoutExtension = platform === _platform2.default.APPSTORE ? 'AppStoreReviews' : 'GooglePlayReviews';
           _this2.logger.info('Start generate ' + fileNameWithoutExtension);
           var workbook = new _exceljs2.default.Workbook();
           var now = new Date();
           workbook.created = now;
           workbook.modified = now;
 
-          var _iteratorNormalCompletion = true;
-          var _didIteratorError = false;
-          var _iteratorError = undefined;
+          reviewMap.forEach(function (reviews, name) {
+            var worksheet = workbook.addWorksheet(name);
+            worksheet.addRow(['date', 'title', 'content', 'star', 'version', 'author']);
 
-          try {
-            var _loop = function _loop() {
-              var appReviewInfo = _step.value;
+            reviews.forEach(function (review) {
+              worksheet.addRow([review.date, review.title, review.content, parseInt(review.rating, 10), review.version, review.author]);
+            });
+            _this2.formatWorksheet(worksheet);
+          });
 
-              var worksheet = workbook.addWorksheet(appReviewInfo.name);
-              worksheet.addRow(['date', 'title', 'content', 'star', 'version', 'author']);
-
-              appReviewInfo.reviews.forEach(function (review) {
-                worksheet.addRow([review.date, review.title, review.content, parseInt(review.rating, 10), review.version, review.author]);
-              });
-              _this2.formatWorksheet(worksheet);
-            };
-
-            for (var _iterator = appReviewInfoList[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-              _loop();
-            }
-          } catch (err) {
-            _didIteratorError = true;
-            _iteratorError = err;
-          } finally {
-            try {
-              if (!_iteratorNormalCompletion && _iterator.return) {
-                _iterator.return();
-              }
-            } finally {
-              if (_didIteratorError) {
-                throw _iteratorError;
-              }
-            }
-          }
-
-          var absPath = _path2.default.join(outputFolder, fileNameWithoutExtension + '.xlsx');
+          var absPath = _path2.default.join(outDir, fileNameWithoutExtension + '.xlsx');
           workbook.xlsx.writeFile(absPath).then(function () {
             _this2.logger.info('Finished generate ' + fileNameWithoutExtension);
           }).catch(function (error) {

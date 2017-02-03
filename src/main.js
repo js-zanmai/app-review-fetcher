@@ -1,6 +1,5 @@
 import 'babel-polyfill';// for async/await
 import R from 'ramda';
-import AppReviewInfo from './app-review-info';
 import config from '../config';
 import util from './utility';
 import PlatformType from './platform';
@@ -11,43 +10,42 @@ import MailNotifier from './mail-notifier';
 
 const logger = util.getLogger();
 
-async function scrapeAppReviewInfoListBody(appSettings, asyncFunc) {
-  const appReviewInfoList = [];
-
+async function fetchReviewMapBody(appSettings, asyncFunc) {
+  const map = new Map();
   for (const appSetting of appSettings) {
     const reviews = await asyncFunc(appSetting.id);
     logger.info(`${reviews.length} reviews fetched. [App name] ${appSetting.name}`);
-    appReviewInfoList.push(new AppReviewInfo(appSetting.name, reviews));
+    map.set(appSetting.name, reviews);
     await util.sleep();
   }
 
-  return appReviewInfoList;
+  return map;
 }
 
-async function scrapeAppReviewInfoList(platform) {
+async function fetchReviewMap(platform) {
   const scraper = new Scraper();
 
   if (platform === PlatformType.APPSTORE) {
-    return await scrapeAppReviewInfoListBody(config.appStore, scraper.fetchReviewFromAppStore);
+    return await fetchReviewMapBody(config.appStore, scraper.fetchReviewFromAppStore);
   } else {
-    return await scrapeAppReviewInfoListBody(config.googlePlay, scraper.fetchReviewFromGooglePlay);
+    return await fetchReviewMapBody(config.googlePlay, scraper.fetchReviewFromGooglePlay);
   }
 }
 
-async function executeAsync(platformType) {
+async function runAsync(platformType) {
   try {
-    const appReviewInfoList = await scrapeAppReviewInfoList(platformType);
+    const reviewMap = await fetchReviewMap(platformType);
 
     const excelGenerator = new ExcelGenerator(logger);
-    excelGenerator.generate(appReviewInfoList, platformType, `${__dirname}/../out`);
+    excelGenerator.generate(reviewMap, platformType, `${__dirname}/../out`);
     
     const sqliteArchiver = new SqliteArchiver(`${__dirname}/../out/reviews.sqlite`, logger);
     
     try {
-      const newAppReviewInfoList = await sqliteArchiver.archiveAsync(appReviewInfoList, platformType);
-      if (config.mail.IsEnabled && !R.isEmpty(newAppReviewInfoList)) {
+      const newReviewMap = await sqliteArchiver.archiveAsync(reviewMap, platformType);
+      if (config.mail.IsEnabled && !R.isEmpty(newReviewMap)) {
         const mailNotifier = new MailNotifier(logger);
-        await mailNotifier.notifyAsync(newAppReviewInfoList, platformType);
+        await mailNotifier.notifyAsync(newReviewMap, platformType);
       }
     } finally {
       sqliteArchiver.close();
@@ -58,8 +56,8 @@ async function executeAsync(platformType) {
 }
 
 async function main() {
-  await executeAsync(PlatformType.APPSTORE);
-  await executeAsync(PlatformType.GOOGLEPLAY);
+  await runAsync(PlatformType.APPSTORE);
+  await runAsync(PlatformType.GOOGLEPLAY);
 }
 
 main();

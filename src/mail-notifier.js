@@ -33,8 +33,8 @@ export default class MailNotifier {
     return R.times((i) => i < rating ? '★' : '☆', 5).reduce((a, b) => a + b);
   }
 
-  async notifyAsync(appReviewInfoList, platformType) {
-    if (R.isEmpty(appReviewInfoList)) {
+  async notifyAsync(reviewMap, platform) {
+    if (R.isEmpty(reviewMap)) {
       this.logger.info('New review is nothing');
       return;
     }
@@ -42,12 +42,12 @@ export default class MailNotifier {
     try {
       let mailBody = '';
       const LF = '\n';
-      const mailSubject = platformType === PlatformType.APPSTORE ? '【AppStore新着レビュー】' : '【GooglePlay新着レビュー】';
+      const mailSubject = platform === PlatformType.APPSTORE ? '【AppStore新着レビュー】' : '【GooglePlay新着レビュー】';
       
-      for (const appReviewInfo of appReviewInfoList) {
-        mailBody += `${LF}■${appReviewInfo.name}${LF}`
+      reviewMap.forEach((reviews, name) => {
+        mailBody += `${LF}■${name}${LF}`
                  + `------------------------------${LF}`;
-        appReviewInfo.reviews.forEach((review) => {
+        reviews.forEach((review) => {
           mailBody += `Date:    ${review.date}${LF}`
                     + `Title:   ${review.title}${LF}`
                     + `Comment: ${review.content}${LF}`
@@ -56,7 +56,7 @@ export default class MailNotifier {
                     + `Version: ${review.version}${LF}${LF}`
                     + `------------------------------${LF}`;
         });
-      }
+      });
 
       this.logger.info(`New arrivals!!! [subject] ${mailSubject} [body] ${mailBody}`);
       await this.sendMailAsync(mailSubject, mailBody);

@@ -82,14 +82,14 @@ var MailNotifier = function () {
     }
   }, {
     key: 'notifyAsync',
-    value: function notifyAsync(appReviewInfoList, platformType) {
+    value: function notifyAsync(reviewMap, platform) {
       var _this = this;
 
       return regeneratorRuntime.async(function notifyAsync$(_context3) {
         while (1) {
           switch (_context3.prev = _context3.next) {
             case 0:
-              if (!_ramda2.default.isEmpty(appReviewInfoList)) {
+              if (!_ramda2.default.isEmpty(reviewMap)) {
                 _context3.next = 3;
                 break;
               }
@@ -101,74 +101,33 @@ var MailNotifier = function () {
               _context3.prev = 3;
               _context3.next = 6;
               return regeneratorRuntime.awrap(function _callee() {
-                var mailBody, LF, mailSubject, _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, appReviewInfo;
-
+                var mailBody, LF, mailSubject;
                 return regeneratorRuntime.async(function _callee$(_context2) {
                   while (1) {
                     switch (_context2.prev = _context2.next) {
                       case 0:
                         mailBody = '';
                         LF = '\n';
-                        mailSubject = platformType === _platform2.default.APPSTORE ? '【AppStore新着レビュー】' : '【GooglePlay新着レビュー】';
-                        _iteratorNormalCompletion = true;
-                        _didIteratorError = false;
-                        _iteratorError = undefined;
-                        _context2.prev = 6;
+                        mailSubject = platform === _platform2.default.APPSTORE ? '【AppStore新着レビュー】' : '【GooglePlay新着レビュー】';
 
 
-                        for (_iterator = appReviewInfoList[Symbol.iterator](); !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-                          appReviewInfo = _step.value;
-
-                          mailBody += LF + '\u25A0' + appReviewInfo.name + LF + ('------------------------------' + LF);
-                          appReviewInfo.reviews.forEach(function (review) {
+                        reviewMap.forEach(function (reviews, name) {
+                          mailBody += LF + '\u25A0' + name + LF + ('------------------------------' + LF);
+                          reviews.forEach(function (review) {
                             mailBody += 'Date:    ' + review.date + LF + ('Title:   ' + review.title + LF) + ('Comment: ' + review.content + LF) + ('Author:  ' + review.author + LF) + ('Rating:  ' + _this.rating2star(review.rating) + LF) + ('Version: ' + review.version + LF + LF) + ('------------------------------' + LF);
                           });
-                        }
+                        });
 
-                        _context2.next = 14;
-                        break;
-
-                      case 10:
-                        _context2.prev = 10;
-                        _context2.t0 = _context2['catch'](6);
-                        _didIteratorError = true;
-                        _iteratorError = _context2.t0;
-
-                      case 14:
-                        _context2.prev = 14;
-                        _context2.prev = 15;
-
-                        if (!_iteratorNormalCompletion && _iterator.return) {
-                          _iterator.return();
-                        }
-
-                      case 17:
-                        _context2.prev = 17;
-
-                        if (!_didIteratorError) {
-                          _context2.next = 20;
-                          break;
-                        }
-
-                        throw _iteratorError;
-
-                      case 20:
-                        return _context2.finish(17);
-
-                      case 21:
-                        return _context2.finish(14);
-
-                      case 22:
                         _this.logger.info('New arrivals!!! [subject] ' + mailSubject + ' [body] ' + mailBody);
-                        _context2.next = 25;
+                        _context2.next = 7;
                         return regeneratorRuntime.awrap(_this.sendMailAsync(mailSubject, mailBody));
 
-                      case 25:
+                      case 7:
                       case 'end':
                         return _context2.stop();
                     }
                   }
-                }, null, _this, [[6, 10, 14, 22], [15,, 17, 21]]);
+                }, null, _this);
               }());
 
             case 6:

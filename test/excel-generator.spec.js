@@ -1,7 +1,6 @@
 import fs from 'fs';
 import PlatformType from '../src/platform';
 import Review from '../src/review';
-import AppReviewInfo from '../src/app-review-info';
 import ExcelGenerator from '../src/excel-generator';
 import DummyLogger from './dummy-logger';
 
@@ -26,10 +25,12 @@ describe('ExcelGenerator', () => {
           const version = 1.0;
           const author = 'author';
           const review = new Review(id, updated, title, content, rating, version, author);
-          const appReviewInfoList = [new AppReviewInfo('hoge', [review]), new AppReviewInfo('moge', [review])];
+          const reviewMap = new Map();
+          reviewMap.set('hoge', [review]);
+          reviewMap.set('moge', [review]);
           const excelGenerator = new ExcelGenerator(new DummyLogger());
           // Act
-          excelGenerator.generate(appReviewInfoList, test.platformType, __dirname);
+          excelGenerator.generate(reviewMap, test.platformType, __dirname);
           // Assert
           fs.accessSync(expectedFilePath);
         } finally {

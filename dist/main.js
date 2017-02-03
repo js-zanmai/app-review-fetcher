@@ -6,10 +6,6 @@ var _ramda = require('ramda');
 
 var _ramda2 = _interopRequireDefault(_ramda);
 
-var _appReviewInfo = require('./app-review-info');
-
-var _appReviewInfo2 = _interopRequireDefault(_appReviewInfo);
-
 var _config = require('../config');
 
 var _config2 = _interopRequireDefault(_config);
@@ -40,17 +36,17 @@ var _mailNotifier2 = _interopRequireDefault(_mailNotifier);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var logger = _utility2.default.getLogger(); // for async/await
+// for async/await
+var logger = _utility2.default.getLogger();
 
+function fetchReviewMapBody(appSettings, asyncFunc) {
+  var map, _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, appSetting, reviews;
 
-function scrapeAppReviewInfoListBody(appSettings, asyncFunc) {
-  var appReviewInfoList, _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, appSetting, reviews;
-
-  return regeneratorRuntime.async(function scrapeAppReviewInfoListBody$(_context) {
+  return regeneratorRuntime.async(function fetchReviewMapBody$(_context) {
     while (1) {
       switch (_context.prev = _context.next) {
         case 0:
-          appReviewInfoList = [];
+          map = new Map();
           _iteratorNormalCompletion = true;
           _didIteratorError = false;
           _iteratorError = undefined;
@@ -71,7 +67,7 @@ function scrapeAppReviewInfoListBody(appSettings, asyncFunc) {
           reviews = _context.sent;
 
           logger.info(reviews.length + ' reviews fetched. [App name] ' + appSetting.name);
-          appReviewInfoList.push(new _appReviewInfo2.default(appSetting.name, reviews));
+          map.set(appSetting.name, reviews);
           _context.next = 15;
           return regeneratorRuntime.awrap(_utility2.default.sleep());
 
@@ -115,7 +111,7 @@ function scrapeAppReviewInfoListBody(appSettings, asyncFunc) {
           return _context.finish(24);
 
         case 32:
-          return _context.abrupt('return', appReviewInfoList);
+          return _context.abrupt('return', map);
 
         case 33:
         case 'end':
@@ -125,9 +121,9 @@ function scrapeAppReviewInfoListBody(appSettings, asyncFunc) {
   }, null, this, [[4, 20, 24, 32], [25,, 27, 31]]);
 }
 
-function scrapeAppReviewInfoList(platform) {
+function fetchReviewMap(platform) {
   var scraper;
-  return regeneratorRuntime.async(function scrapeAppReviewInfoList$(_context2) {
+  return regeneratorRuntime.async(function fetchReviewMap$(_context2) {
     while (1) {
       switch (_context2.prev = _context2.next) {
         case 0:
@@ -139,14 +135,14 @@ function scrapeAppReviewInfoList(platform) {
           }
 
           _context2.next = 4;
-          return regeneratorRuntime.awrap(scrapeAppReviewInfoListBody(_config2.default.appStore, scraper.fetchReviewFromAppStore));
+          return regeneratorRuntime.awrap(fetchReviewMapBody(_config2.default.appStore, scraper.fetchReviewFromAppStore));
 
         case 4:
           return _context2.abrupt('return', _context2.sent);
 
         case 7:
           _context2.next = 9;
-          return regeneratorRuntime.awrap(scrapeAppReviewInfoListBody(_config2.default.googlePlay, scraper.fetchReviewFromGooglePlay));
+          return regeneratorRuntime.awrap(fetchReviewMapBody(_config2.default.googlePlay, scraper.fetchReviewFromGooglePlay));
 
         case 9:
           return _context2.abrupt('return', _context2.sent);
@@ -159,38 +155,38 @@ function scrapeAppReviewInfoList(platform) {
   }, null, this);
 }
 
-function executeAsync(platformType) {
-  var appReviewInfoList, excelGenerator, sqliteArchiver, newAppReviewInfoList, mailNotifier;
-  return regeneratorRuntime.async(function executeAsync$(_context3) {
+function runAsync(platformType) {
+  var reviewMap, excelGenerator, sqliteArchiver, newReviewMap, mailNotifier;
+  return regeneratorRuntime.async(function runAsync$(_context3) {
     while (1) {
       switch (_context3.prev = _context3.next) {
         case 0:
           _context3.prev = 0;
           _context3.next = 3;
-          return regeneratorRuntime.awrap(scrapeAppReviewInfoList(platformType));
+          return regeneratorRuntime.awrap(fetchReviewMap(platformType));
 
         case 3:
-          appReviewInfoList = _context3.sent;
+          reviewMap = _context3.sent;
           excelGenerator = new _excelGenerator2.default(logger);
 
-          excelGenerator.generate(appReviewInfoList, platformType, __dirname + '/../out');
+          excelGenerator.generate(reviewMap, platformType, __dirname + '/../out');
 
           sqliteArchiver = new _sqliteArchiver2.default(__dirname + '/../out/reviews.sqlite', logger);
           _context3.prev = 7;
           _context3.next = 10;
-          return regeneratorRuntime.awrap(sqliteArchiver.archiveAsync(appReviewInfoList, platformType));
+          return regeneratorRuntime.awrap(sqliteArchiver.archiveAsync(reviewMap, platformType));
 
         case 10:
-          newAppReviewInfoList = _context3.sent;
+          newReviewMap = _context3.sent;
 
-          if (!(_config2.default.mail.IsEnabled && !_ramda2.default.isEmpty(newAppReviewInfoList))) {
+          if (!(_config2.default.mail.IsEnabled && !_ramda2.default.isEmpty(newReviewMap))) {
             _context3.next = 15;
             break;
           }
 
           mailNotifier = new _mailNotifier2.default(logger);
           _context3.next = 15;
-          return regeneratorRuntime.awrap(mailNotifier.notifyAsync(newAppReviewInfoList, platformType));
+          return regeneratorRuntime.awrap(mailNotifier.notifyAsync(newReviewMap, platformType));
 
         case 15:
           _context3.prev = 15;
@@ -222,11 +218,11 @@ function main() {
       switch (_context4.prev = _context4.next) {
         case 0:
           _context4.next = 2;
-          return regeneratorRuntime.awrap(executeAsync(_platform2.default.APPSTORE));
+          return regeneratorRuntime.awrap(runAsync(_platform2.default.APPSTORE));
 
         case 2:
           _context4.next = 4;
-          return regeneratorRuntime.awrap(executeAsync(_platform2.default.GOOGLEPLAY));
+          return regeneratorRuntime.awrap(runAsync(_platform2.default.GOOGLEPLAY));
 
         case 4:
         case 'end':

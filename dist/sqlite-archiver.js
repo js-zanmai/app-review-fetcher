@@ -4,6 +4,8 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); // for async/await
 
 
@@ -20,10 +22,6 @@ var _ramda2 = _interopRequireDefault(_ramda);
 var _platform = require('./platform');
 
 var _platform2 = _interopRequireDefault(_platform);
-
-var _appReviewInfo = require('./app-review-info');
-
-var _appReviewInfo2 = _interopRequireDefault(_appReviewInfo);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -93,10 +91,10 @@ var SqliteArchiver = function () {
     }
   }, {
     key: 'archiveAsync',
-    value: function archiveAsync(appReviewInfoList, platformType) {
+    value: function archiveAsync(reviewMap, platform) {
       var _this4 = this;
 
-      var tableName, newAppReviewInfoList, _iteratorNormalCompletion, _didIteratorError, _iteratorError, _loop, _iterator, _step;
+      var tableName, newReviewMap, _iteratorNormalCompletion, _didIteratorError, _iteratorError, _loop, _iterator, _step;
 
       return regeneratorRuntime.async(function archiveAsync$(_context2) {
         while (1) {
@@ -107,25 +105,26 @@ var SqliteArchiver = function () {
 
             case 2:
               _context2.prev = 2;
-              tableName = platformType === _platform2.default.APPSTORE ? 'appstore' : 'googleplay';
+              tableName = platform === _platform2.default.APPSTORE ? 'appstore' : 'googleplay';
 
               this.initTableIfNotExists(tableName);
 
-              newAppReviewInfoList = [];
+              newReviewMap = new Map();
               _iteratorNormalCompletion = true;
               _didIteratorError = false;
               _iteratorError = undefined;
               _context2.prev = 9;
 
               _loop = function _callee() {
-                var appReviewInfo, savedReviews, isSameReview, curriedIsSameReview, isNewReview, newReviews, recentReviews;
+                var _step$value, name, reviews, savedReviews, isSameReview, curriedIsSameReview, isNewReview, newReviews, recentReviews;
+
                 return regeneratorRuntime.async(function _callee$(_context) {
                   while (1) {
                     switch (_context.prev = _context.next) {
                       case 0:
-                        appReviewInfo = _step.value;
+                        _step$value = _slicedToArray(_step.value, 2), name = _step$value[0], reviews = _step$value[1];
                         _context.next = 3;
-                        return regeneratorRuntime.awrap(_this4.selectAllReviewAsync(appReviewInfo.name, tableName));
+                        return regeneratorRuntime.awrap(_this4.selectAllReviewAsync(name, tableName));
 
                       case 3:
                         savedReviews = _context.sent;
@@ -140,19 +139,19 @@ var SqliteArchiver = function () {
                           return !_ramda2.default.any(curriedIsSameReview(x))(savedReviews);
                         };
 
-                        newReviews = _ramda2.default.filter(isNewReview, appReviewInfo.reviews);
+                        newReviews = _ramda2.default.filter(isNewReview, reviews);
 
 
                         if (_ramda2.default.isEmpty(newReviews)) {
-                          _this4.logger.info('New review is nothing. [Table Name] ' + tableName + ' [App name] ' + appReviewInfo.name);
+                          _this4.logger.info('New review is nothing. [Table Name] ' + tableName + ' [App name] ' + name);
                         } else {
-                          _this4.insertReviews(newReviews, appReviewInfo.name, tableName);
+                          _this4.insertReviews(newReviews, name, tableName);
                           recentReviews = _this4.extractRecentReviews(newReviews);
 
                           if (!_ramda2.default.isEmpty(recentReviews)) {
-                            newAppReviewInfoList.push(new _appReviewInfo2.default(appReviewInfo.name, recentReviews));
+                            newReviewMap.set(name, recentReviews);
                           }
-                          _this4.logger.info('Inserted ' + newReviews.length + ' number of reviews. [Table Name] ' + tableName + ' [App name] ' + appReviewInfo.name);
+                          _this4.logger.info('Inserted ' + newReviews.length + ' number of reviews. [Table Name] ' + tableName + ' [App name] ' + name);
                         }
 
                       case 9:
@@ -163,7 +162,7 @@ var SqliteArchiver = function () {
                 }, null, _this4);
               };
 
-              _iterator = appReviewInfoList[Symbol.iterator]();
+              _iterator = reviewMap.entries()[Symbol.iterator]();
 
             case 12:
               if (_iteratorNormalCompletion = (_step = _iterator.next()).done) {
@@ -218,7 +217,7 @@ var SqliteArchiver = function () {
               return regeneratorRuntime.awrap(this.db.run('COMMIT'));
 
             case 34:
-              return _context2.abrupt('return', newAppReviewInfoList);
+              return _context2.abrupt('return', newReviewMap);
 
             case 37:
               _context2.prev = 37;

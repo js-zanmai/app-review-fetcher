@@ -3,7 +3,6 @@ import assert from 'power-assert';
 import sqlite3 from 'sqlite3';
 import PlatformType from '../src/platform';
 import Review from '../src/review';
-import AppReviewInfo from '../src/app-review-info';
 import SqliteArchiver from '../src/sqlite-archiver';
 import DummyLogger from './dummy-logger';
 
@@ -55,23 +54,25 @@ describe('SqliteArchiver', () => {
         const author = 'author';
         const review1 = new Review(id1, updated, title1, content, rating, version, author);
         const review2 = new Review(id2, updated, title2, content, rating, version, author);
-        const appReviewInfoList = [new AppReviewInfo(app1, [review1]), new AppReviewInfo(app2, [review2])];
+        const reviewMap = new Map();
+        reviewMap.set(app1, [review1]);
+        reviewMap.set(app2, [review2]);
         // Act
-        const newAppReviewInfoList = await sqliteArchiver.archiveAsync(appReviewInfoList, test.platformType);
+        const newReviewMap = await sqliteArchiver.archiveAsync(reviewMap, test.platformType);
         
         const reviewList1 = await sqliteArchiver.selectAllReviewAsync(app1, test.tableName);
         const reviewList2 = await sqliteArchiver.selectAllReviewAsync(app2, test.tableName);
         // Assert
-        assert(newAppReviewInfoList.length === appReviewInfoList.length);
+        assert(newReviewMap.size === reviewMap.size);
         assert(reviewList1[0].title === title1);
         assert(reviewList2[0].title === title2);
 
         let wasCalled = false;
         SqliteArchiver.insertReviews = () => { wasCalled = true; };
-        const emptyArray = await sqliteArchiver.archiveAsync(appReviewInfoList, test.platformType);
+        const emptyMap = await sqliteArchiver.archiveAsync(reviewMap, test.platformType);
         
         assert(wasCalled === false);
-        assert(emptyArray.length === 0);
+        assert(emptyMap.size === 0);
       });
     });
   });

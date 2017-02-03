@@ -2,7 +2,6 @@ import assert from 'power-assert';
 import util from '../src/utility';
 import PlatformType from '../src/platform';
 import Review from '../src/review';
-import AppReviewInfo from '../src/app-review-info';
 import MailNotifier from '../src/mail-notifier';
 import DummyLogger from './dummy-logger';
 
@@ -34,14 +33,16 @@ describe('MailNotifier', () => {
         const author = 'author';
         const todayReview = new Review(id, todayStr, title, content, rating, version, author);
         const yesterdayReview = new Review(id, yesterdayStr, title, content, rating, version, author);
-        const appReviewInfoList = [new AppReviewInfo('hoge', [todayReview]), new AppReviewInfo('moge', [yesterdayReview])];
+        const reviewMap = new Map();
+        reviewMap.set('hoge', [todayReview]);
+        reviewMap.set('moge', [yesterdayReview]);
         const mailNotifier = new MailNotifier(new DummyLogger());
         mailNotifier.sendMailAsync = (subject, mailBody) => {
           assert(subject === test.subject);
           assert(typeof mailBody === 'string');
         };
         // Act & Assert
-        mailNotifier.notifyAsync(appReviewInfoList, test.platformType);
+        mailNotifier.notifyAsync(reviewMap, test.platformType);
       });
     });
 
