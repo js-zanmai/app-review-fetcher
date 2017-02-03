@@ -52,7 +52,7 @@ var Scraper = function () {
       return new Promise(function (resolve, reject) {
         var RSS = 'https://itunes.apple.com/jp/rss/customerreviews/id=' + id + '/xml';
         var reviews = [];
-        var isFinished = false;
+        var done = false;
 
         var fetchRecursive = function fetchRecursive(url) {
           return _cheerioHttpcli2.default.fetch(url).then(function (result) {
@@ -83,12 +83,12 @@ var Scraper = function () {
               }
             });
 
-            if (isFinished || !nextPage || firstPage == lastPage) {
+            if (done || !nextPage || firstPage === lastPage) {
               return reviews;
             }
 
             // 次のページが最終ページであればフラグを立てておき、クロールを止めるようにする。
-            isFinished = nextPage == lastPage;
+            done = nextPage === lastPage;
             // linkタグをクロールすることで過去のレビューを再帰的に取得する。
             return fetchRecursive(nextPage);
           }).catch(function (error) {

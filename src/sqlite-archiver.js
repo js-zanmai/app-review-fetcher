@@ -57,7 +57,8 @@ export default class SqliteArchiver {
     const now = new Date();
     const threeDaysAgo = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 3);
     return reviews.filter((review) => {
-      return new Date(review.date).getTime() >= threeDaysAgo.getTime();
+      const date = new Date(review.date);
+      return date.getTime() >= threeDaysAgo.getTime();
     });
   }
 

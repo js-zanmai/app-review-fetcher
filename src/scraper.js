@@ -16,7 +16,7 @@ export default class Scraper {
     return new Promise((resolve, reject) => {
       const RSS = `https://itunes.apple.com/jp/rss/customerreviews/id=${id}/xml`;
       const reviews = [];
-      let isFinished = false;
+      let done = false;
 
       const fetchRecursive = (url) => {
         return client.fetch(url).then((result) => {
@@ -46,12 +46,12 @@ export default class Scraper {
             
           });
 
-          if (isFinished || !nextPage || (firstPage == lastPage)) {
+          if (done || !nextPage || (firstPage === lastPage)) {
             return reviews;
           }
           
           // 次のページが最終ページであればフラグを立てておき、クロールを止めるようにする。
-          isFinished = nextPage == lastPage;
+          done = nextPage === lastPage;
           // linkタグをクロールすることで過去のレビューを再帰的に取得する。
           return fetchRecursive(nextPage);
         }).catch((error) => {

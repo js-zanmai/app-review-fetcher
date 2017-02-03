@@ -86,7 +86,8 @@ var SqliteArchiver = function () {
       var now = new Date();
       var threeDaysAgo = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 3);
       return reviews.filter(function (review) {
-        return new Date(review.date).getTime() >= threeDaysAgo.getTime();
+        var date = new Date(review.date);
+        return date.getTime() >= threeDaysAgo.getTime();
       });
     }
   }, {
