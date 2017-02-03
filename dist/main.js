@@ -12,8 +12,6 @@ var _utility2 = _interopRequireDefault(_utility);
 
 var _scraper = require('./scraper');
 
-var _scraper2 = _interopRequireDefault(_scraper);
-
 var _excelGenerator = require('./excel-generator');
 
 var _excelGenerator2 = _interopRequireDefault(_excelGenerator);
@@ -48,7 +46,7 @@ var Param = function Param(mailSubject, tableName, fileNameWithoutExtension) {
   this.fileNameWithoutExtension = fileNameWithoutExtension;
 };
 
-function fetchAsyncBody(appSettings, asyncFunc) {
+function fetchAsyncBody(appSettings, scraper) {
   var reviewMap, _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, appSetting, reviews;
 
   return regeneratorRuntime.async(function fetchAsyncBody$(_context) {
@@ -70,7 +68,7 @@ function fetchAsyncBody(appSettings, asyncFunc) {
 
           appSetting = _step.value;
           _context.next = 10;
-          return regeneratorRuntime.awrap(asyncFunc(appSetting.id));
+          return regeneratorRuntime.awrap(scraper.fetch(appSetting.id));
 
         case 10:
           reviews = _context.sent;
@@ -131,34 +129,32 @@ function fetchAsyncBody(appSettings, asyncFunc) {
 }
 
 function fetchAsync(platform) {
-  var scraper;
   return regeneratorRuntime.async(function fetchAsync$(_context2) {
     while (1) {
       switch (_context2.prev = _context2.next) {
         case 0:
-          scraper = new _scraper2.default();
           _context2.t0 = platform;
-          _context2.next = _context2.t0 === Platform.APPSTORE ? 4 : _context2.t0 === Platform.GOOGLEPLAY ? 7 : 10;
+          _context2.next = _context2.t0 === Platform.APPSTORE ? 3 : _context2.t0 === Platform.GOOGLEPLAY ? 6 : 9;
           break;
 
-        case 4:
-          _context2.next = 6;
-          return regeneratorRuntime.awrap(fetchAsyncBody(_config2.default.appStore, scraper.fetchReviewFromAppStore));
+        case 3:
+          _context2.next = 5;
+          return regeneratorRuntime.awrap(fetchAsyncBody(_config2.default.appStore, new _scraper.AppStoreScraper(logger)));
+
+        case 5:
+          return _context2.abrupt('return', _context2.sent);
 
         case 6:
-          return _context2.abrupt('return', _context2.sent);
+          _context2.next = 8;
+          return regeneratorRuntime.awrap(fetchAsyncBody(_config2.default.googlePlay, new _scraper.GooglePlayScraper(logger)));
 
-        case 7:
-          _context2.next = 9;
-          return regeneratorRuntime.awrap(fetchAsyncBody(_config2.default.googlePlay, scraper.fetchReviewFromGooglePlay));
+        case 8:
+          return _context2.abrupt('return', _context2.sent);
 
         case 9:
-          return _context2.abrupt('return', _context2.sent);
-
-        case 10:
           throw new Error('invalid platform!!');
 
-        case 11:
+        case 10:
         case 'end':
           return _context2.stop();
       }

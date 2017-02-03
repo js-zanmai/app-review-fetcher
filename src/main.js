@@ -1,7 +1,7 @@
 import 'babel-polyfill';// for async/await
 import config from '../config';
 import util from './utility';
-import Scraper from './scraper';
+import { AppStoreScraper, GooglePlayScraper } from './scraper';
 import ExcelGenerator from './excel-generator';
 import SqliteArchiver from './sqlite-archiver';
 import MailNotifier from './mail-notifier';
@@ -23,10 +23,10 @@ class Param {
   }
 }
 
-async function fetchAsyncBody(appSettings, asyncFunc) {
+async function fetchAsyncBody(appSettings, scraper) {
   const reviewMap = new Map();
   for (const appSetting of appSettings) {
-    const reviews = await asyncFunc(appSetting.id);
+    const reviews = await scraper.fetch(appSetting.id);
     logger.info(`${reviews.length} reviews fetched. [App name] ${appSetting.name}`);
     reviewMap.set(appSetting.name, reviews);
     await util.sleep();
@@ -35,12 +35,11 @@ async function fetchAsyncBody(appSettings, asyncFunc) {
 }
 
 async function fetchAsync(platform) {
-  const scraper = new Scraper();
   switch(platform) {
   case Platform.APPSTORE:
-    return await fetchAsyncBody(config.appStore, scraper.fetchReviewFromAppStore);
+    return await fetchAsyncBody(config.appStore, new AppStoreScraper(logger));
   case Platform.GOOGLEPLAY:
-    return await fetchAsyncBody(config.googlePlay, scraper.fetchReviewFromGooglePlay);
+    return await fetchAsyncBody(config.googlePlay, new GooglePlayScraper(logger));
   default:
     throw new Error('invalid platform!!');
   }

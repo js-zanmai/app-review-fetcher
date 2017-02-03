@@ -6,12 +6,24 @@ import client from 'cheerio-httpcli';
 import util from './utility';
 import Review from './review';
 
-const logger = util.getLogger();
+class Scraper {
+  constructor(logger) {
+    this.logger = logger;
+  }
 
-export default class Scraper {
+  async fetch(id) {
+    throw new TypeError('Do not call abstract method fetch from child.');
+  }
+}
 
-  fetchReviewFromAppStore(id) {
-    logger.info(`Start fetching from AppStore. id = ${id}`);
+class AppStoreScraper extends Scraper {
+
+  constructor(logger) {
+    super(logger);
+  }
+
+  async fetch(id) {
+    this.logger.info(`Start fetching from AppStore. id = ${id}`);
     
     return new Promise((resolve, reject) => {
       const RSS = `https://itunes.apple.com/jp/rss/customerreviews/id=${id}/xml`;
@@ -54,9 +66,9 @@ export default class Scraper {
           done = nextPage === lastPage;
           // linkタグをクロールすることで過去のレビューを再帰的に取得する。
           return fetchRecursive(nextPage);
-        }).catch((error) => {
-          logger.error(error);
-          reject(error);
+        }).catch((err) => {
+          this.logger.error(err);
+          reject(err);
         });
       };
 
@@ -65,15 +77,22 @@ export default class Scraper {
       });
     });
   }
+}
 
-  async fetchReviewFromGooglePlay(id) {
-    logger.info(`Start fetching from GooglePlay. id = ${id}`);
+class GooglePlayScraper extends Scraper {
+
+  constructor(logger) {
+    super(logger);
+  }
+
+  async fetch(id) {
+    this.logger.info(`Start fetching from GooglePlay. id = ${id}`);
 
     const doRequest = function(params) {
       return new Promise((resolve, reject) => {
         requestLib(params, (error, response, body) => {
           if (error) {
-            logger.error(error);
+            this.logger.error(error);
             reject(error);
           } else {
             resolve(body);
@@ -138,3 +157,8 @@ export default class Scraper {
   }
 
 }
+
+export { 
+  AppStoreScraper,
+  GooglePlayScraper
+};
