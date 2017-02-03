@@ -6,10 +6,6 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _platform = require('./platform');
-
-var _platform2 = _interopRequireDefault(_platform);
-
 var _exceljs = require('exceljs');
 
 var _exceljs2 = _interopRequireDefault(_exceljs);
@@ -134,36 +130,43 @@ var ExcelGenerator = function () {
       });
     }
   }, {
-    key: 'generate',
-    value: function generate(reviewMap, platform, outDir) {
+    key: 'addWorksheet',
+    value: function addWorksheet(workbook, reviewMap) {
       var _this2 = this;
 
+      reviewMap.forEach(function (reviews, name) {
+        var worksheet = workbook.addWorksheet(name);
+        worksheet.addRow(['date', 'title', 'content', 'star', 'version', 'author']);
+
+        reviews.forEach(function (review) {
+          worksheet.addRow([review.date, review.title, review.content, parseInt(review.rating, 10), review.version, review.author]);
+        });
+        _this2.formatWorksheet(worksheet);
+      });
+    }
+  }, {
+    key: 'saveFile',
+    value: function saveFile(workbook, absPath) {
+      var _this3 = this;
+
+      workbook.xlsx.writeFile(absPath).then(function () {
+        _this3.logger.info('Finished generate ' + absPath);
+      }).catch(function (error) {
+        _this3.logger.error(error);
+      });
+    }
+  }, {
+    key: 'generate',
+    value: function generate(reviewMap, outDir, fileNameWithoutExtension) {
       try {
-        (function () {
-          var fileNameWithoutExtension = platform === _platform2.default.APPSTORE ? 'AppStoreReviews' : 'GooglePlayReviews';
-          _this2.logger.info('Start generate ' + fileNameWithoutExtension);
-          var workbook = new _exceljs2.default.Workbook();
-          var now = new Date();
-          workbook.created = now;
-          workbook.modified = now;
-
-          reviewMap.forEach(function (reviews, name) {
-            var worksheet = workbook.addWorksheet(name);
-            worksheet.addRow(['date', 'title', 'content', 'star', 'version', 'author']);
-
-            reviews.forEach(function (review) {
-              worksheet.addRow([review.date, review.title, review.content, parseInt(review.rating, 10), review.version, review.author]);
-            });
-            _this2.formatWorksheet(worksheet);
-          });
-
-          var absPath = _path2.default.join(outDir, fileNameWithoutExtension + '.xlsx');
-          workbook.xlsx.writeFile(absPath).then(function () {
-            _this2.logger.info('Finished generate ' + fileNameWithoutExtension);
-          }).catch(function (error) {
-            _this2.logger.error(error);
-          });
-        })();
+        this.logger.info('Start generate ' + fileNameWithoutExtension);
+        var workbook = new _exceljs2.default.Workbook();
+        var now = new Date();
+        workbook.created = now;
+        workbook.modified = now;
+        this.addWorksheet(workbook, reviewMap);
+        var absPath = _path2.default.join(outDir, fileNameWithoutExtension + '.xlsx');
+        this.saveFile(workbook, absPath);
       } catch (error) {
         this.logger.error(error);
       }

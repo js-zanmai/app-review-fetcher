@@ -19,10 +19,6 @@ var _ramda = require('ramda');
 
 var _ramda2 = _interopRequireDefault(_ramda);
 
-var _platform = require('./platform');
-
-var _platform2 = _interopRequireDefault(_platform);
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -91,11 +87,42 @@ var SqliteArchiver = function () {
       });
     }
   }, {
-    key: 'archiveAsync',
-    value: function archiveAsync(reviewMap, platform) {
-      var _this4 = this;
+    key: 'searchNewReviewsAsync',
+    value: function searchNewReviewsAsync(reviews, appName, tableName) {
+      var savedReviews, isSameReview, curriedIsSameReview, isNewReview;
+      return regeneratorRuntime.async(function searchNewReviewsAsync$(_context) {
+        while (1) {
+          switch (_context.prev = _context.next) {
+            case 0:
+              _context.next = 2;
+              return regeneratorRuntime.awrap(this.selectAllReviewAsync(appName, tableName));
 
-      var tableName, newReviewMap, _iteratorNormalCompletion, _didIteratorError, _iteratorError, _loop, _iterator, _step;
+            case 2:
+              savedReviews = _context.sent;
+
+              isSameReview = function isSameReview(saved, review) {
+                return review.date === saved.date && review.title === saved.title && review.author === saved.author;
+              };
+
+              curriedIsSameReview = _ramda2.default.curry(isSameReview);
+
+              isNewReview = function isNewReview(x) {
+                return !_ramda2.default.any(curriedIsSameReview(x))(savedReviews);
+              };
+
+              return _context.abrupt('return', _ramda2.default.filter(isNewReview, reviews));
+
+            case 7:
+            case 'end':
+              return _context.stop();
+          }
+        }
+      }, null, this);
+    }
+  }, {
+    key: 'archiveAsync',
+    value: function archiveAsync(reviewMap, tableName) {
+      var newReviewMap, _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, _step$value, appName, reviews, newReviews, recentReviews;
 
       return regeneratorRuntime.async(function archiveAsync$(_context2) {
         while (1) {
@@ -106,135 +133,102 @@ var SqliteArchiver = function () {
 
             case 2:
               _context2.prev = 2;
-              tableName = platform === _platform2.default.APPSTORE ? 'appstore' : 'googleplay';
 
               this.initTableIfNotExists(tableName);
-
               newReviewMap = new Map();
               _iteratorNormalCompletion = true;
               _didIteratorError = false;
               _iteratorError = undefined;
-              _context2.prev = 9;
-
-              _loop = function _callee() {
-                var _step$value, name, reviews, savedReviews, isSameReview, curriedIsSameReview, isNewReview, newReviews, recentReviews;
-
-                return regeneratorRuntime.async(function _callee$(_context) {
-                  while (1) {
-                    switch (_context.prev = _context.next) {
-                      case 0:
-                        _step$value = _slicedToArray(_step.value, 2), name = _step$value[0], reviews = _step$value[1];
-                        _context.next = 3;
-                        return regeneratorRuntime.awrap(_this4.selectAllReviewAsync(name, tableName));
-
-                      case 3:
-                        savedReviews = _context.sent;
-
-                        isSameReview = function isSameReview(saved, review) {
-                          return review.date === saved.date && review.title === saved.title && review.author === saved.author;
-                        };
-
-                        curriedIsSameReview = _ramda2.default.curry(isSameReview);
-
-                        isNewReview = function isNewReview(x) {
-                          return !_ramda2.default.any(curriedIsSameReview(x))(savedReviews);
-                        };
-
-                        newReviews = _ramda2.default.filter(isNewReview, reviews);
-
-
-                        if (_ramda2.default.isEmpty(newReviews)) {
-                          _this4.logger.info('New review is nothing. [Table Name] ' + tableName + ' [App name] ' + name);
-                        } else {
-                          _this4.insertReviews(newReviews, name, tableName);
-                          recentReviews = _this4.extractRecentReviews(newReviews);
-
-                          if (!_ramda2.default.isEmpty(recentReviews)) {
-                            newReviewMap.set(name, recentReviews);
-                          }
-                          _this4.logger.info('Inserted ' + newReviews.length + ' number of reviews. [Table Name] ' + tableName + ' [App name] ' + name);
-                        }
-
-                      case 9:
-                      case 'end':
-                        return _context.stop();
-                    }
-                  }
-                }, null, _this4);
-              };
-
+              _context2.prev = 8;
               _iterator = reviewMap.entries()[Symbol.iterator]();
 
-            case 12:
+            case 10:
               if (_iteratorNormalCompletion = (_step = _iterator.next()).done) {
-                _context2.next = 18;
+                _context2.next = 19;
                 break;
               }
 
-              _context2.next = 15;
-              return regeneratorRuntime.awrap(_loop());
+              _step$value = _slicedToArray(_step.value, 2), appName = _step$value[0], reviews = _step$value[1];
+              _context2.next = 14;
+              return regeneratorRuntime.awrap(this.searchNewReviewsAsync(reviews, appName, tableName));
 
-            case 15:
+            case 14:
+              newReviews = _context2.sent;
+
+
+              if (_ramda2.default.isEmpty(newReviews)) {
+                this.logger.info('New review is nothing. [Table Name] ' + tableName + ' [App name] ' + appName);
+              } else {
+                this.insertReviews(newReviews, appName, tableName);
+                recentReviews = this.extractRecentReviews(newReviews);
+
+                if (!_ramda2.default.isEmpty(recentReviews)) {
+                  newReviewMap.set(appName, recentReviews);
+                }
+                this.logger.info('Inserted ' + newReviews.length + ' number of reviews. [Table Name] ' + tableName + ' [App name] ' + appName);
+              }
+
+            case 16:
               _iteratorNormalCompletion = true;
-              _context2.next = 12;
+              _context2.next = 10;
               break;
 
-            case 18:
-              _context2.next = 24;
+            case 19:
+              _context2.next = 25;
               break;
 
-            case 20:
-              _context2.prev = 20;
-              _context2.t0 = _context2['catch'](9);
+            case 21:
+              _context2.prev = 21;
+              _context2.t0 = _context2['catch'](8);
               _didIteratorError = true;
               _iteratorError = _context2.t0;
 
-            case 24:
-              _context2.prev = 24;
+            case 25:
               _context2.prev = 25;
+              _context2.prev = 26;
 
               if (!_iteratorNormalCompletion && _iterator.return) {
                 _iterator.return();
               }
 
-            case 27:
-              _context2.prev = 27;
+            case 28:
+              _context2.prev = 28;
 
               if (!_didIteratorError) {
-                _context2.next = 30;
+                _context2.next = 31;
                 break;
               }
 
               throw _iteratorError;
 
-            case 30:
-              return _context2.finish(27);
-
             case 31:
-              return _context2.finish(24);
+              return _context2.finish(28);
 
             case 32:
-              _context2.next = 34;
+              return _context2.finish(25);
+
+            case 33:
+              _context2.next = 35;
               return regeneratorRuntime.awrap(this.db.run('COMMIT'));
 
-            case 34:
+            case 35:
               return _context2.abrupt('return', newReviewMap);
 
-            case 37:
-              _context2.prev = 37;
+            case 38:
+              _context2.prev = 38;
               _context2.t1 = _context2['catch'](2);
-              _context2.next = 41;
+              _context2.next = 42;
               return regeneratorRuntime.awrap(this.db.run('ROLLBACK'));
 
-            case 41:
+            case 42:
               this.logger.error(_context2.t1);
 
-            case 42:
+            case 43:
             case 'end':
               return _context2.stop();
           }
         }
-      }, null, this, [[2, 37], [9, 20, 24, 32], [25,, 27, 31]]);
+      }, null, this, [[2, 38], [8, 21, 25, 33], [26,, 28, 32]]);
     }
   }, {
     key: 'close',

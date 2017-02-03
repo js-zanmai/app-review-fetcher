@@ -1,4 +1,3 @@
-import Platform from './platform';
 import Excel from 'exceljs';
 import path from 'path';
 
@@ -108,38 +107,41 @@ export default class ExcelGenerator {
     });
   }
 
-  generate(reviewMap, platform, outDir) {
+  addWorksheet(workbook, reviewMap) {
+    reviewMap.forEach((reviews, name) => {
+      const worksheet = workbook.addWorksheet(name);
+      worksheet.addRow(['date', 'title', 'content', 'star', 'version', 'author']);
+
+      reviews.forEach((review) => {
+        worksheet.addRow([review.date, review.title, review.content, parseInt(review.rating, 10), review.version, review.author]);
+      });
+      this.formatWorksheet(worksheet);
+    });
+  }
+
+  saveFile(workbook, absPath) {
+    workbook.xlsx.writeFile(absPath)
+    .then(() => {
+      this.logger.info(`Finished generate ${absPath}`);
+    })
+    .catch( (error) => {
+      this.logger.error(error);
+    });
+  }
+
+  generate(reviewMap, outDir, fileNameWithoutExtension) {
     try {
-      const fileNameWithoutExtension = platform === Platform.APPSTORE ? 'AppStoreReviews' : 'GooglePlayReviews';
       this.logger.info(`Start generate ${fileNameWithoutExtension}`);
       const workbook = new Excel.Workbook();
       const now = new Date();
       workbook.created = now;
       workbook.modified = now;
-      
-      reviewMap.forEach((reviews, name) => {
-        const worksheet = workbook.addWorksheet(name);
-        worksheet.addRow(['date', 'title', 'content', 'star', 'version', 'author']);
-
-        reviews.forEach((review) => {
-          worksheet.addRow([review.date, review.title, review.content, parseInt(review.rating, 10), review.version, review.author]);
-        });
-        this.formatWorksheet(worksheet);
-      });
-
+      this.addWorksheet(workbook, reviewMap);
       const absPath = path.join(outDir, `${fileNameWithoutExtension}.xlsx`);
-      workbook.xlsx.writeFile(absPath)
-      .then(() => {
-        this.logger.info(`Finished generate ${fileNameWithoutExtension}`);
-      })
-      .catch( (error) => {
-        this.logger.error(error);
-      });
-
+      this.saveFile(workbook, absPath);
     } catch (error) {
       this.logger.error(error);
     }
-
   }
 }
 

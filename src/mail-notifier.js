@@ -2,7 +2,6 @@ import 'babel-polyfill';// for async/await
 import R from 'ramda';
 import nodemailer from 'nodemailer';
 import config from '../config';
-import Platform from './platform';
 
 export default class MailNotifier {
 
@@ -33,36 +32,37 @@ export default class MailNotifier {
     return R.times((i) => i < rating ? '★' : '☆', 5).reduce((a, b) => a + b);
   }
 
-  async notifyAsync(reviewMap, platform) {
+  buildMessage(reviewMap) {
+    let mailBody = '';
+    const LF = '\n';
+    reviewMap.forEach((reviews, name) => {
+      mailBody += `${LF}■${name}${LF}`
+                + `------------------------------${LF}`;
+      reviews.forEach((review) => {
+        mailBody += `Date:    ${review.date}${LF}`
+                  + `Title:   ${review.title}${LF}`
+                  + `Comment: ${review.content}${LF}`
+                  + `Author:  ${review.author}${LF}`
+                  + `Rating:  ${this.rating2star(review.rating)}${LF}`
+                  + `Version: ${review.version}${LF}${LF}`
+                  + `------------------------------${LF}`;
+      });
+    });
+    return mailBody;
+  }
+
+  async notifyAsync(reviewMap, subject) {
     if (reviewMap.size === 0) {
       this.logger.info('New review is nothing');
       return;
     }
 
     try {
-      let mailBody = '';
-      const LF = '\n';
-      const mailSubject = platform === Platform.APPSTORE ? '【AppStore新着レビュー】' : '【GooglePlay新着レビュー】';
-      
-      reviewMap.forEach((reviews, name) => {
-        mailBody += `${LF}■${name}${LF}`
-                 + `------------------------------${LF}`;
-        reviews.forEach((review) => {
-          mailBody += `Date:    ${review.date}${LF}`
-                    + `Title:   ${review.title}${LF}`
-                    + `Comment: ${review.content}${LF}`
-                    + `Author:  ${review.author}${LF}`
-                    + `Rating:  ${this.rating2star(review.rating)}${LF}`
-                    + `Version: ${review.version}${LF}${LF}`
-                    + `------------------------------${LF}`;
-        });
-      });
-
-      this.logger.info(`New arrivals!!! [subject] ${mailSubject} [body] ${mailBody}`);
-      await this.sendMailAsync(mailSubject, mailBody);
-
-    } catch (error) {
-      this.logger.error(error);
+      const mailBody = this.buildMessage(reviewMap);
+      this.logger.info(`New arrivals!!! [subject] ${subject} [body] ${mailBody}`);
+      await this.sendMailAsync(subject, mailBody);
+    } catch (err) {
+      this.logger.error(err);
     }
   }
 }

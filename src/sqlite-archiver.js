@@ -1,7 +1,6 @@
 import 'babel-polyfill';// for async/await
 import sqlite3 from 'sqlite3';
 import R from 'ramda';
-import Platform from './platform';
 
 export default class SqliteArchiver {
 
@@ -62,39 +61,39 @@ export default class SqliteArchiver {
     });
   }
 
-  async archiveAsync(reviewMap, platform) {
+  async searchNewReviewsAsync(reviews, appName, tableName) {
+    const savedReviews = await this.selectAllReviewAsync(appName, tableName);
+    const isSameReview = (saved, review) => (review.date === saved.date) && (review.title === saved.title) && (review.author === saved.author);
+    const curriedIsSameReview = R.curry(isSameReview);
+    const isNewReview = x => !R.any(curriedIsSameReview(x))(savedReviews);
+    return R.filter(isNewReview, reviews);
+  }
+
+  async archiveAsync(reviewMap, tableName) {
     await this.db.run('BEGIN');
     try {
-      const tableName = platform === Platform.APPSTORE ? 'appstore' : 'googleplay'; 
       this.initTableIfNotExists(tableName);
-      
       const newReviewMap = new Map();
-      for (const [name, reviews] of reviewMap.entries()) {
-        const savedReviews = await this.selectAllReviewAsync(name, tableName);
-        const isSameReview = (saved, review) => (review.date === saved.date) && (review.title === saved.title) && (review.author === saved.author);
-        const curriedIsSameReview = R.curry(isSameReview);
-        const isNewReview = x => !R.any(curriedIsSameReview(x))(savedReviews);
-        const newReviews = R.filter(isNewReview, reviews);
+      for (const [appName, reviews] of reviewMap.entries()) {
+        const newReviews = await this.searchNewReviewsAsync(reviews, appName, tableName);
         
         if (R.isEmpty(newReviews)) {
-          this.logger.info(`New review is nothing. [Table Name] ${tableName} [App name] ${name}`);
+          this.logger.info(`New review is nothing. [Table Name] ${tableName} [App name] ${appName}`);
         } else {
-          this.insertReviews(newReviews, name, tableName);
+          this.insertReviews(newReviews, appName, tableName);
           const recentReviews = this.extractRecentReviews(newReviews);
           if (!R.isEmpty(recentReviews)) {
-            newReviewMap.set(name, recentReviews);
+            newReviewMap.set(appName, recentReviews);
           }
-          this.logger.info(`Inserted ${newReviews.length} number of reviews. [Table Name] ${tableName} [App name] ${name}`);
+          this.logger.info(`Inserted ${newReviews.length} number of reviews. [Table Name] ${tableName} [App name] ${appName}`);
         }
       }
       await this.db.run('COMMIT');
       return newReviewMap;
-
-    } catch (error) {
+    } catch (err) {
       await this.db.run('ROLLBACK');
-      this.logger.error(error);
+      this.logger.error(err);
     }
-  
   }
 
   close() {

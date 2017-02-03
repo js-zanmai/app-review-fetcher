@@ -10,10 +10,6 @@ var _utility = require('./utility');
 
 var _utility2 = _interopRequireDefault(_utility);
 
-var _platform = require('./platform');
-
-var _platform2 = _interopRequireDefault(_platform);
-
 var _scraper = require('./scraper');
 
 var _scraper2 = _interopRequireDefault(_scraper);
@@ -32,17 +28,34 @@ var _mailNotifier2 = _interopRequireDefault(_mailNotifier);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var logger = _utility2.default.getLogger(); // for async/await
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } } // for async/await
 
 
-function fetchReviewMapBody(appSettings, asyncFunc) {
-  var map, _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, appSetting, reviews;
+var logger = _utility2.default.getLogger();
+var outDir = __dirname + '/../out';
+var dbFile = outDir + '/reviews.sqlite';
 
-  return regeneratorRuntime.async(function fetchReviewMapBody$(_context) {
+var Platform = {
+  APPSTORE: Symbol(),
+  GOOGLEPLAY: Symbol()
+};
+
+var Param = function Param(mailSubject, tableName, fileNameWithoutExtension) {
+  _classCallCheck(this, Param);
+
+  this.mailSubject = mailSubject;
+  this.tableName = tableName;
+  this.fileNameWithoutExtension = fileNameWithoutExtension;
+};
+
+function fetchAsyncBody(appSettings, asyncFunc) {
+  var reviewMap, _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, appSetting, reviews;
+
+  return regeneratorRuntime.async(function fetchAsyncBody$(_context) {
     while (1) {
       switch (_context.prev = _context.next) {
         case 0:
-          map = new Map();
+          reviewMap = new Map();
           _iteratorNormalCompletion = true;
           _didIteratorError = false;
           _iteratorError = undefined;
@@ -63,7 +76,7 @@ function fetchReviewMapBody(appSettings, asyncFunc) {
           reviews = _context.sent;
 
           logger.info(reviews.length + ' reviews fetched. [App name] ' + appSetting.name);
-          map.set(appSetting.name, reviews);
+          reviewMap.set(appSetting.name, reviews);
           _context.next = 15;
           return regeneratorRuntime.awrap(_utility2.default.sleep());
 
@@ -107,7 +120,7 @@ function fetchReviewMapBody(appSettings, asyncFunc) {
           return _context.finish(24);
 
         case 32:
-          return _context.abrupt('return', map);
+          return _context.abrupt('return', reviewMap);
 
         case 33:
         case 'end':
@@ -117,33 +130,35 @@ function fetchReviewMapBody(appSettings, asyncFunc) {
   }, null, this, [[4, 20, 24, 32], [25,, 27, 31]]);
 }
 
-function fetchReviewMap(platform) {
+function fetchAsync(platform) {
   var scraper;
-  return regeneratorRuntime.async(function fetchReviewMap$(_context2) {
+  return regeneratorRuntime.async(function fetchAsync$(_context2) {
     while (1) {
       switch (_context2.prev = _context2.next) {
         case 0:
           scraper = new _scraper2.default();
-
-          if (!(platform === _platform2.default.APPSTORE)) {
-            _context2.next = 7;
-            break;
-          }
-
-          _context2.next = 4;
-          return regeneratorRuntime.awrap(fetchReviewMapBody(_config2.default.appStore, scraper.fetchReviewFromAppStore));
+          _context2.t0 = platform;
+          _context2.next = _context2.t0 === Platform.APPSTORE ? 4 : _context2.t0 === Platform.GOOGLEPLAY ? 7 : 10;
+          break;
 
         case 4:
+          _context2.next = 6;
+          return regeneratorRuntime.awrap(fetchAsyncBody(_config2.default.appStore, scraper.fetchReviewFromAppStore));
+
+        case 6:
           return _context2.abrupt('return', _context2.sent);
 
         case 7:
           _context2.next = 9;
-          return regeneratorRuntime.awrap(fetchReviewMapBody(_config2.default.googlePlay, scraper.fetchReviewFromGooglePlay));
+          return regeneratorRuntime.awrap(fetchAsyncBody(_config2.default.googlePlay, scraper.fetchReviewFromGooglePlay));
 
         case 9:
           return _context2.abrupt('return', _context2.sent);
 
         case 10:
+          throw new Error('invalid platform!!');
+
+        case 11:
         case 'end':
           return _context2.stop();
       }
@@ -151,78 +166,130 @@ function fetchReviewMap(platform) {
   }, null, this);
 }
 
-function runAsync(platform) {
-  var reviewMap, excelGenerator, sqliteArchiver, newReviewMap, mailNotifier;
-  return regeneratorRuntime.async(function runAsync$(_context3) {
+function map2Excel(reviewMap, fileNameWithoutExtension) {
+  var excel = new _excelGenerator2.default(logger);
+  excel.generate(reviewMap, outDir, fileNameWithoutExtension);
+}
+
+function map2SqliteAsync(reviewMap, tableName) {
+  var sqlite;
+  return regeneratorRuntime.async(function map2SqliteAsync$(_context3) {
     while (1) {
       switch (_context3.prev = _context3.next) {
         case 0:
-          _context3.prev = 0;
-          _context3.next = 3;
-          return regeneratorRuntime.awrap(fetchReviewMap(platform));
+          sqlite = new _sqliteArchiver2.default(dbFile, logger);
+          _context3.prev = 1;
+          _context3.next = 4;
+          return regeneratorRuntime.awrap(sqlite.archiveAsync(reviewMap, tableName));
 
-        case 3:
-          reviewMap = _context3.sent;
-          excelGenerator = new _excelGenerator2.default(logger);
+        case 4:
+          return _context3.abrupt('return', _context3.sent);
 
-          excelGenerator.generate(reviewMap, platform, __dirname + '/../out');
+        case 5:
+          _context3.prev = 5;
 
-          sqliteArchiver = new _sqliteArchiver2.default(__dirname + '/../out/reviews.sqlite', logger);
-          _context3.prev = 7;
-          _context3.next = 10;
-          return regeneratorRuntime.awrap(sqliteArchiver.archiveAsync(reviewMap, platform));
+          sqlite.close();
+          return _context3.finish(5);
 
-        case 10:
-          newReviewMap = _context3.sent;
-
-          if (!(_config2.default.mail.IsEnabled && newReviewMap.size !== 0)) {
-            _context3.next = 15;
-            break;
-          }
-
-          mailNotifier = new _mailNotifier2.default(logger);
-          _context3.next = 15;
-          return regeneratorRuntime.awrap(mailNotifier.notifyAsync(newReviewMap, platform));
-
-        case 15:
-          _context3.prev = 15;
-
-          sqliteArchiver.close();
-          return _context3.finish(15);
-
-        case 18:
-          _context3.next = 23;
-          break;
-
-        case 20:
-          _context3.prev = 20;
-          _context3.t0 = _context3['catch'](0);
-
-          logger.error(_context3.t0);
-
-        case 23:
+        case 8:
         case 'end':
           return _context3.stop();
       }
     }
-  }, null, this, [[0, 20], [7,, 15, 18]]);
+  }, null, this, [[1,, 5, 8]]);
 }
 
-function main() {
-  return regeneratorRuntime.async(function main$(_context4) {
+function map2MailAsync(reviewMap, mailSubject) {
+  var mailNotifier;
+  return regeneratorRuntime.async(function map2MailAsync$(_context4) {
     while (1) {
       switch (_context4.prev = _context4.next) {
         case 0:
-          _context4.next = 2;
-          return regeneratorRuntime.awrap(runAsync(_platform2.default.APPSTORE));
+          mailNotifier = new _mailNotifier2.default(logger);
+          _context4.next = 3;
+          return regeneratorRuntime.awrap(mailNotifier.notifyAsync(reviewMap, mailSubject));
+
+        case 3:
+        case 'end':
+          return _context4.stop();
+      }
+    }
+  }, null, this);
+}
+
+function getParams(platform) {
+  switch (platform) {
+    case Platform.APPSTORE:
+      return new Param('【AppStore新着レビュー】', 'appstore', 'AppStoreReviews');
+    case Platform.GOOGLEPLAY:
+      return new Param('【GooglePlay新着レビュー】', 'googleplay', 'GooglePlayReviews');
+    default:
+      throw new Error('invalid platform!!');
+  }
+}
+
+function runAsync(platform) {
+  var reviewMap, param, newReviewMap;
+  return regeneratorRuntime.async(function runAsync$(_context5) {
+    while (1) {
+      switch (_context5.prev = _context5.next) {
+        case 0:
+          _context5.prev = 0;
+          _context5.next = 3;
+          return regeneratorRuntime.awrap(fetchAsync(platform));
+
+        case 3:
+          reviewMap = _context5.sent;
+          param = getParams(platform);
+
+          map2Excel(reviewMap, param.fileNameWithoutExtension);
+          _context5.next = 8;
+          return regeneratorRuntime.awrap(map2SqliteAsync(reviewMap, param.tableName));
+
+        case 8:
+          newReviewMap = _context5.sent;
+
+          if (!_config2.default.mail.IsEnabled) {
+            _context5.next = 12;
+            break;
+          }
+
+          _context5.next = 12;
+          return regeneratorRuntime.awrap(map2MailAsync(newReviewMap, param.mailSubject));
+
+        case 12:
+          _context5.next = 17;
+          break;
+
+        case 14:
+          _context5.prev = 14;
+          _context5.t0 = _context5['catch'](0);
+
+          logger.error(_context5.t0);
+
+        case 17:
+        case 'end':
+          return _context5.stop();
+      }
+    }
+  }, null, this, [[0, 14]]);
+}
+
+function main() {
+  return regeneratorRuntime.async(function main$(_context6) {
+    while (1) {
+      switch (_context6.prev = _context6.next) {
+        case 0:
+          _context6.next = 2;
+          return regeneratorRuntime.awrap(runAsync(Platform.APPSTORE));
 
         case 2:
-          _context4.next = 4;
-          return regeneratorRuntime.awrap(runAsync(_platform2.default.GOOGLEPLAY));
+          _context6.next = 4;
+          return regeneratorRuntime.awrap(runAsync(Platform.GOOGLEPLAY));
 
         case 4:
         case 'end':
-          return _context4.stop();
+          return _context6.stop();
       }
     }
   }, null, this);

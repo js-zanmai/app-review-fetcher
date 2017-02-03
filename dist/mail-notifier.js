@@ -21,10 +21,6 @@ var _config = require('../config');
 
 var _config2 = _interopRequireDefault(_config);
 
-var _platform = require('./platform');
-
-var _platform2 = _interopRequireDefault(_platform);
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -81,71 +77,60 @@ var MailNotifier = function () {
       });
     }
   }, {
-    key: 'notifyAsync',
-    value: function notifyAsync(reviewMap, platform) {
+    key: 'buildMessage',
+    value: function buildMessage(reviewMap) {
       var _this = this;
 
-      return regeneratorRuntime.async(function notifyAsync$(_context3) {
+      var mailBody = '';
+      var LF = '\n';
+      reviewMap.forEach(function (reviews, name) {
+        mailBody += LF + '\u25A0' + name + LF + ('------------------------------' + LF);
+        reviews.forEach(function (review) {
+          mailBody += 'Date:    ' + review.date + LF + ('Title:   ' + review.title + LF) + ('Comment: ' + review.content + LF) + ('Author:  ' + review.author + LF) + ('Rating:  ' + _this.rating2star(review.rating) + LF) + ('Version: ' + review.version + LF + LF) + ('------------------------------' + LF);
+        });
+      });
+      return mailBody;
+    }
+  }, {
+    key: 'notifyAsync',
+    value: function notifyAsync(reviewMap, subject) {
+      var mailBody;
+      return regeneratorRuntime.async(function notifyAsync$(_context2) {
         while (1) {
-          switch (_context3.prev = _context3.next) {
+          switch (_context2.prev = _context2.next) {
             case 0:
               if (!(reviewMap.size === 0)) {
-                _context3.next = 3;
+                _context2.next = 3;
                 break;
               }
 
               this.logger.info('New review is nothing');
-              return _context3.abrupt('return');
+              return _context2.abrupt('return');
 
             case 3:
-              _context3.prev = 3;
-              _context3.next = 6;
-              return regeneratorRuntime.awrap(function _callee() {
-                var mailBody, LF, mailSubject;
-                return regeneratorRuntime.async(function _callee$(_context2) {
-                  while (1) {
-                    switch (_context2.prev = _context2.next) {
-                      case 0:
-                        mailBody = '';
-                        LF = '\n';
-                        mailSubject = platform === _platform2.default.APPSTORE ? '【AppStore新着レビュー】' : '【GooglePlay新着レビュー】';
+              _context2.prev = 3;
+              mailBody = this.buildMessage(reviewMap);
 
-
-                        reviewMap.forEach(function (reviews, name) {
-                          mailBody += LF + '\u25A0' + name + LF + ('------------------------------' + LF);
-                          reviews.forEach(function (review) {
-                            mailBody += 'Date:    ' + review.date + LF + ('Title:   ' + review.title + LF) + ('Comment: ' + review.content + LF) + ('Author:  ' + review.author + LF) + ('Rating:  ' + _this.rating2star(review.rating) + LF) + ('Version: ' + review.version + LF + LF) + ('------------------------------' + LF);
-                          });
-                        });
-
-                        _this.logger.info('New arrivals!!! [subject] ' + mailSubject + ' [body] ' + mailBody);
-                        _context2.next = 7;
-                        return regeneratorRuntime.awrap(_this.sendMailAsync(mailSubject, mailBody));
-
-                      case 7:
-                      case 'end':
-                        return _context2.stop();
-                    }
-                  }
-                }, null, _this);
-              }());
-
-            case 6:
-              _context3.next = 11;
-              break;
+              this.logger.info('New arrivals!!! [subject] ' + subject + ' [body] ' + mailBody);
+              _context2.next = 8;
+              return regeneratorRuntime.awrap(this.sendMailAsync(subject, mailBody));
 
             case 8:
-              _context3.prev = 8;
-              _context3.t0 = _context3['catch'](3);
+              _context2.next = 13;
+              break;
 
-              this.logger.error(_context3.t0);
+            case 10:
+              _context2.prev = 10;
+              _context2.t0 = _context2['catch'](3);
 
-            case 11:
+              this.logger.error(_context2.t0);
+
+            case 13:
             case 'end':
-              return _context3.stop();
+              return _context2.stop();
           }
         }
-      }, null, this, [[3, 8]]);
+      }, null, this, [[3, 10]]);
     }
   }]);
 
