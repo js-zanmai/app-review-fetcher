@@ -68,7 +68,7 @@ function fetchAsyncBody(appSettings, scraper) {
 
           appSetting = _step.value;
           _context.next = 10;
-          return regeneratorRuntime.awrap(scraper.fetch(appSetting.id));
+          return regeneratorRuntime.awrap(scraper.fetchAsync(appSetting.id));
 
         case 10:
           reviews = _context.sent;
@@ -196,14 +196,14 @@ function map2SqliteAsync(reviewMap, tableName) {
 }
 
 function map2MailAsync(reviewMap, mailSubject) {
-  var mailNotifier;
+  var mail;
   return regeneratorRuntime.async(function map2MailAsync$(_context4) {
     while (1) {
       switch (_context4.prev = _context4.next) {
         case 0:
-          mailNotifier = new _mailNotifier2.default(logger);
+          mail = new _mailNotifier2.default(logger);
           _context4.next = 3;
-          return regeneratorRuntime.awrap(mailNotifier.notifyAsync(reviewMap, mailSubject));
+          return regeneratorRuntime.awrap(mail.notifyAsync(reviewMap, mailSubject));
 
         case 3:
         case 'end':

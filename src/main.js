@@ -26,7 +26,7 @@ class Param {
 async function fetchAsyncBody(appSettings, scraper) {
   const reviewMap = new Map();
   for (const appSetting of appSettings) {
-    const reviews = await scraper.fetch(appSetting.id);
+    const reviews = await scraper.fetchAsync(appSetting.id);
     logger.info(`${reviews.length} reviews fetched. [App name] ${appSetting.name}`);
     reviewMap.set(appSetting.name, reviews);
     await util.sleep();
@@ -60,8 +60,8 @@ async function map2SqliteAsync(reviewMap, tableName) {
 }
 
 async function map2MailAsync(reviewMap, mailSubject) {
-  const mailNotifier = new MailNotifier(logger);
-  await mailNotifier.notifyAsync(reviewMap, mailSubject);
+  const mail = new MailNotifier(logger);
+  await mail.notifyAsync(reviewMap, mailSubject);
 }
 
 function getParams(platform) {
