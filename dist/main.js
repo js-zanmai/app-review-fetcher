@@ -28,6 +28,10 @@ var _mailNotifier = require('./mail-notifier');
 
 var _mailNotifier2 = _interopRequireDefault(_mailNotifier);
 
+var _slackNotifier = require('./slack-notifier');
+
+var _slackNotifier2 = _interopRequireDefault(_slackNotifier);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } } // for async/await
@@ -37,16 +41,15 @@ var logger = _utility2.default.getLogger();
 var config = _jsYaml2.default.safeLoad(_fs2.default.readFileSync(__dirname + '/../config.yml', 'utf8'));
 
 var Platform = {
-  APPSTORE: Symbol(),
-  GOOGLEPLAY: Symbol()
+  IOS: Symbol(),
+  ANDROID: Symbol()
 };
 
-var Param = function Param(mailSubject, tableName, fileNameWithoutExtension) {
-  _classCallCheck(this, Param);
+var AppKind = function AppKind(service, platform) {
+  _classCallCheck(this, AppKind);
 
-  this.mailSubject = mailSubject;
-  this.tableName = tableName;
-  this.fileNameWithoutExtension = fileNameWithoutExtension;
+  this.service = service;
+  this.platform = platform;
 };
 
 function fetchAsyncBody(appSettings, scraper) {
@@ -137,7 +140,7 @@ function fetchAsync(platform) {
       switch (_context2.prev = _context2.next) {
         case 0:
           _context2.t0 = platform;
-          _context2.next = _context2.t0 === Platform.APPSTORE ? 3 : _context2.t0 === Platform.GOOGLEPLAY ? 6 : 9;
+          _context2.next = _context2.t0 === Platform.IOS ? 3 : _context2.t0 === Platform.ANDROID ? 6 : 9;
           break;
 
         case 3:
@@ -216,19 +219,24 @@ function map2MailAsync(reviewMap, mailSubject) {
   }, null, this);
 }
 
-function getParams(platform) {
+function map2Slack(reviewMap, platform) {
+  var slack = new _slackNotifier2.default(logger);
+  slack.notify(reviewMap, platform, config.slack);
+}
+
+function getKind(platform) {
   switch (platform) {
-    case Platform.APPSTORE:
-      return new Param('【AppStore新着レビュー】', 'appstore', 'AppStoreReviews');
-    case Platform.GOOGLEPLAY:
-      return new Param('【GooglePlay新着レビュー】', 'googleplay', 'GooglePlayReviews');
+    case Platform.IOS:
+      return new AppKind('AppStore', 'iOS');
+    case Platform.ANDROID:
+      return new AppKind('GooglePlay', 'Android');
     default:
       throw new Error('invalid platform!!');
   }
 }
 
 function runAsync(platform) {
-  var reviewMap, param, newReviewMap;
+  var reviewMap, kind, newReviewMap;
   return regeneratorRuntime.async(function runAsync$(_context5) {
     while (1) {
       switch (_context5.prev = _context5.next) {
@@ -239,33 +247,34 @@ function runAsync(platform) {
 
         case 3:
           reviewMap = _context5.sent;
-          param = getParams(platform);
+          kind = getKind(platform);
 
-          map2Excel(reviewMap, param.fileNameWithoutExtension);
+          map2Excel(reviewMap, kind.service + 'Reviews');
           _context5.next = 8;
-          return regeneratorRuntime.awrap(map2SqliteAsync(reviewMap, param.tableName));
+          return regeneratorRuntime.awrap(map2SqliteAsync(reviewMap, kind.service.toLowerCase()));
 
         case 8:
           newReviewMap = _context5.sent;
           _context5.next = 11;
-          return regeneratorRuntime.awrap(map2MailAsync(newReviewMap, param.mailSubject));
+          return regeneratorRuntime.awrap(map2MailAsync(newReviewMap, kind.service));
 
         case 11:
-          _context5.next = 16;
+          map2Slack(newReviewMap, kind.platform);
+          _context5.next = 17;
           break;
 
-        case 13:
-          _context5.prev = 13;
+        case 14:
+          _context5.prev = 14;
           _context5.t0 = _context5['catch'](0);
 
           logger.error(_context5.t0);
 
-        case 16:
+        case 17:
         case 'end':
           return _context5.stop();
       }
     }
-  }, null, this, [[0, 13]]);
+  }, null, this, [[0, 14]]);
 }
 
 function main() {
@@ -274,11 +283,11 @@ function main() {
       switch (_context6.prev = _context6.next) {
         case 0:
           _context6.next = 2;
-          return regeneratorRuntime.awrap(runAsync(Platform.APPSTORE));
+          return regeneratorRuntime.awrap(runAsync(Platform.IOS));
 
         case 2:
           _context6.next = 4;
-          return regeneratorRuntime.awrap(runAsync(Platform.GOOGLEPLAY));
+          return regeneratorRuntime.awrap(runAsync(Platform.ANDROID));
 
         case 4:
         case 'end':

@@ -6,13 +6,17 @@ googlePlay:
 - id: jp.co.fujixerox.mcopy
   name: セブン−イレブン マルチコピー
 mail:
-  IsEnabled: false
+  use: false
   host: localhost
   port: 25
   fromAddress: ''
   toAddresses:
   - ''
+slack:
+  use: false
+  webhook: https://xxxxxxxxxx
+  channel: general
 excel:
-  outDir: 
+  outDir: /Users/xxxxxx/app-review-fetcher/out
 sqlite:
-  dbPath: 
+  dbPath: /Users/xxxxxx/app-review-fetcher/out/reviews.sqlite

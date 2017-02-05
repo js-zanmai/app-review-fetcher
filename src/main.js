@@ -6,20 +6,20 @@ import { AppStoreScraper, GooglePlayScraper } from './scraper';
 import ExcelGenerator from './excel-generator';
 import SqliteArchiver from './sqlite-archiver';
 import MailNotifier from './mail-notifier';
+import SlackNotifier from './slack-notifier';
 
 const logger = util.getLogger();
 const config = yaml.safeLoad(fs.readFileSync(`${__dirname}/../config.yml`, 'utf8'));
 
 const Platform = {
-  APPSTORE: Symbol(),
-  GOOGLEPLAY: Symbol()
+  IOS: Symbol(),
+  ANDROID: Symbol()
 };
 
-class Param {
-  constructor(mailSubject, tableName, fileNameWithoutExtension) {
-    this.mailSubject = mailSubject;
-    this.tableName = tableName;
-    this.fileNameWithoutExtension = fileNameWithoutExtension;
+class AppKind {
+  constructor(service, platform) {
+    this.service = service;
+    this.platform = platform;
   }
 }
 
@@ -36,9 +36,9 @@ async function fetchAsyncBody(appSettings, scraper) {
 
 async function fetchAsync(platform) {
   switch(platform) {
-  case Platform.APPSTORE:
+  case Platform.IOS:
     return await fetchAsyncBody(config.appStore, new AppStoreScraper(logger));
-  case Platform.GOOGLEPLAY:
+  case Platform.ANDROID:
     return await fetchAsyncBody(config.googlePlay, new GooglePlayScraper(logger));
   default:
     throw new Error('invalid platform!!');
@@ -64,20 +64,17 @@ async function map2MailAsync(reviewMap, mailSubject) {
   await mail.notifyAsync(reviewMap, mailSubject, config.mail);
 }
 
-function getParams(platform) {
+function map2Slack(reviewMap, platform) {
+  const slack = new SlackNotifier(logger);
+  slack.notify(reviewMap, platform, config.slack);
+}
+
+function getKind(platform) {
   switch(platform) {
-  case Platform.APPSTORE:
-    return new Param(
-      '【AppStore新着レビュー】',
-      'appstore',
-      'AppStoreReviews'
-    );
-  case Platform.GOOGLEPLAY:
-    return new Param(
-      '【GooglePlay新着レビュー】',
-      'googleplay',
-      'GooglePlayReviews'
-    );
+  case Platform.IOS:
+    return new AppKind('AppStore', 'iOS');
+  case Platform.ANDROID:
+    return new AppKind('GooglePlay', 'Android');
   default:
     throw new Error('invalid platform!!');
   }
@@ -86,18 +83,19 @@ function getParams(platform) {
 async function runAsync(platform) {
   try {
     const reviewMap = await fetchAsync(platform);
-    const param = getParams(platform);
-    map2Excel(reviewMap, param.fileNameWithoutExtension);
-    const newReviewMap = await map2SqliteAsync(reviewMap, param.tableName);
-    await map2MailAsync(newReviewMap, param.mailSubject);
+    const kind = getKind(platform);
+    map2Excel(reviewMap, kind.service + 'Reviews');
+    const newReviewMap = await map2SqliteAsync(reviewMap, kind.service.toLowerCase());
+    await map2MailAsync(newReviewMap, kind.service);
+    map2Slack(newReviewMap, kind.platform);
   } catch (err) {
     logger.error(err);
   }
 }
 
 async function main() {
-  await runAsync(Platform.APPSTORE);
-  await runAsync(Platform.GOOGLEPLAY);
+  await runAsync(Platform.IOS);
+  await runAsync(Platform.ANDROID);
 }
 
 main();

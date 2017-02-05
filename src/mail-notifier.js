@@ -50,20 +50,21 @@ export default class MailNotifier {
     return mailBody;
   }
 
-  async notifyAsync(reviewMap, subject, mailConfig) {
-    if (!mailConfig.IsEnabled) {
+  async notifyAsync(reviewMap, service, mailConfig) {
+    if (!mailConfig.use) {
       this.logger.info('mail option is disabled.');
       return;
     }
 
     if (reviewMap.size === 0) {
-      this.logger.info('New review is nothing.');
+      this.logger.info('MailNotifier New review is nothing.');
       return;
     }
 
     try {
       const mailBody = this.buildMessage(reviewMap);
-      this.logger.info(`New arrivals!!! [subject] ${subject} [body] ${mailBody}`);
+      const subject = `【${service}新着レビュー】`;
+      this.logger.info(`New reviews arrivals!!! [subject] ${subject} [body] ${mailBody}`);
       await this.sendMailAsync(subject, mailBody, mailConfig);
     } catch (err) {
       this.logger.error(err);

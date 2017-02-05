@@ -41,7 +41,7 @@ describe('MailNotifier', () => {
       let wasCalled = false;
       mailNotifier.sendMailAsync = () => { wasCalled = true; };
       // Act
-      mailNotifier.notifyAsync(new Map(), 'hoge', { IsEnabled: true });
+      mailNotifier.notifyAsync(new Map(), 'hoge', { use: true });
       // Assert
       assert(wasCalled === false);
     });
@@ -57,7 +57,7 @@ describe('MailNotifier', () => {
       let wasCalled = false;
       mailNotifier.sendMailAsync = () => { wasCalled = true; };
       // Act
-      mailNotifier.notifyAsync(reviewMap, 'hoge', { IsEnabled: false });
+      mailNotifier.notifyAsync(reviewMap, 'hoge', { use: false });
       // Assert
       assert(wasCalled === false);
     });

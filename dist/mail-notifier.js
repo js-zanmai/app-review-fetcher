@@ -89,13 +89,13 @@ var MailNotifier = function () {
     }
   }, {
     key: 'notifyAsync',
-    value: function notifyAsync(reviewMap, subject, mailConfig) {
-      var mailBody;
+    value: function notifyAsync(reviewMap, service, mailConfig) {
+      var mailBody, subject;
       return regeneratorRuntime.async(function notifyAsync$(_context2) {
         while (1) {
           switch (_context2.prev = _context2.next) {
             case 0:
-              if (mailConfig.IsEnabled) {
+              if (mailConfig.use) {
                 _context2.next = 3;
                 break;
               }
@@ -109,33 +109,34 @@ var MailNotifier = function () {
                 break;
               }
 
-              this.logger.info('New review is nothing.');
+              this.logger.info('MailNotifier New review is nothing.');
               return _context2.abrupt('return');
 
             case 6:
               _context2.prev = 6;
               mailBody = this.buildMessage(reviewMap);
+              subject = '\u3010' + service + '\u65B0\u7740\u30EC\u30D3\u30E5\u30FC\u3011';
 
-              this.logger.info('New arrivals!!! [subject] ' + subject + ' [body] ' + mailBody);
-              _context2.next = 11;
+              this.logger.info('New reviews arrivals!!! [subject] ' + subject + ' [body] ' + mailBody);
+              _context2.next = 12;
               return regeneratorRuntime.awrap(this.sendMailAsync(subject, mailBody, mailConfig));
 
-            case 11:
-              _context2.next = 16;
+            case 12:
+              _context2.next = 17;
               break;
 
-            case 13:
-              _context2.prev = 13;
+            case 14:
+              _context2.prev = 14;
               _context2.t0 = _context2['catch'](6);
 
               this.logger.error(_context2.t0);
 
-            case 16:
+            case 17:
             case 'end':
               return _context2.stop();
           }
         }
-      }, null, this, [[6, 13]]);
+      }, null, this, [[6, 14]]);
     }
   }]);
 
