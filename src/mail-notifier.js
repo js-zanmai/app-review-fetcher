@@ -1,7 +1,6 @@
 import 'babel-polyfill';// for async/await
 import R from 'ramda';
 import nodemailer from 'nodemailer';
-import config from '../config';
 
 export default class MailNotifier {
 
@@ -9,16 +8,16 @@ export default class MailNotifier {
     this.logger = logger;
   }
 
-  async sendMailAsync(subject, mailBody) {
+  async sendMailAsync(subject, mailBody, mailConfig) {
     const smtpConfig = {
-      host: config.mail.host,
-      port: config.mail.port
+      host: mailConfig.host,
+      port: mailConfig.port
     };
 
     const transporter = nodemailer.createTransport(smtpConfig);
     const mailOptions = {
-      from: config.mail.fromAddress,
-      to: config.mail.toAddress.join(', '),
+      from: mailConfig.fromAddress,
+      to: mailConfig.toAddresses.join(', '),
       subject: subject,
       text: mailBody
     };
@@ -51,16 +50,21 @@ export default class MailNotifier {
     return mailBody;
   }
 
-  async notifyAsync(reviewMap, subject) {
+  async notifyAsync(reviewMap, subject, mailConfig) {
+    if (!mailConfig.IsEnabled) {
+      this.logger.info('mail option is disabled.');
+      return;
+    }
+
     if (reviewMap.size === 0) {
-      this.logger.info('New review is nothing');
+      this.logger.info('New review is nothing.');
       return;
     }
 
     try {
       const mailBody = this.buildMessage(reviewMap);
       this.logger.info(`New arrivals!!! [subject] ${subject} [body] ${mailBody}`);
-      await this.sendMailAsync(subject, mailBody);
+      await this.sendMailAsync(subject, mailBody, mailConfig);
     } catch (err) {
       this.logger.error(err);
     }

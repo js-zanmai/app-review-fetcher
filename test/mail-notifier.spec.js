@@ -10,10 +10,7 @@ describe('MailNotifier', () => {
     it('should be notified', () => {
       // Arrange
       const now = new Date();
-      const dateToStr = (date) => {
-        return `${date.getFullYear()}/${util.zeroPadding(date.getMonth() + 1)}/${util.zeroPadding(date.getDate())}`;
-      };
-
+      const dateToStr = (date) => `${date.getFullYear()}/${util.zeroPadding(date.getMonth() + 1)}/${util.zeroPadding(date.getDate())}`;
       const yesterday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
       const todayStr = dateToStr(now);
       const yesterdayStr = dateToStr(yesterday);
@@ -35,20 +32,35 @@ describe('MailNotifier', () => {
         assert(typeof mailBody === 'string');
       };
       // Act & Assert
-      mailNotifier.notifyAsync(reviewMap, expectedSubject);
+      mailNotifier.notifyAsync(reviewMap, expectedSubject, { IsEnabled: true });
     });
 
-    it('should not be notified', () => {
+    it('should not be notified when new review is nothing', () => {
       // Arrange
       const mailNotifier = new MailNotifier(new DummyLogger());
       let wasCalled = false;
       mailNotifier.sendMailAsync = () => { wasCalled = true; };
       // Act
-      mailNotifier.notifyAsync(new Map(), 'hoge');
+      mailNotifier.notifyAsync(new Map(), 'hoge', { IsEnabled: true });
       // Assert
       assert(wasCalled === false);
     });
 
+    it('should not be notified when IsEnabled = false', () => {
+      // Arrange
+      const now = new Date();
+      const dateToStr = (date) => `${date.getFullYear()}/${util.zeroPadding(date.getMonth() + 1)}/${util.zeroPadding(date.getDate())}`;
+      const todayReview = new Review('id', dateToStr(now), 'title', 'content', 5, 1.0, 'author');
+      const reviewMap = new Map();
+      reviewMap.set('hoge', [todayReview]);
+      const mailNotifier = new MailNotifier(new DummyLogger());
+      let wasCalled = false;
+      mailNotifier.sendMailAsync = () => { wasCalled = true; };
+      // Act
+      mailNotifier.notifyAsync(reviewMap, 'hoge', { IsEnabled: false });
+      // Assert
+      assert(wasCalled === false);
+    });
   });
 
   describe('#rating2star()', () => {

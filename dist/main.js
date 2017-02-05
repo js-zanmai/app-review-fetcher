@@ -2,9 +2,13 @@
 
 require('babel-polyfill');
 
-var _config = require('../config');
+var _jsYaml = require('js-yaml');
 
-var _config2 = _interopRequireDefault(_config);
+var _jsYaml2 = _interopRequireDefault(_jsYaml);
+
+var _fs = require('fs');
+
+var _fs2 = _interopRequireDefault(_fs);
 
 var _utility = require('./utility');
 
@@ -30,8 +34,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 
 var logger = _utility2.default.getLogger();
-var outDir = __dirname + '/../out';
-var dbFile = outDir + '/reviews.sqlite';
+var config = _jsYaml2.default.safeLoad(_fs2.default.readFileSync(__dirname + '/../config.yml', 'utf8'));
 
 var Platform = {
   APPSTORE: Symbol(),
@@ -139,14 +142,14 @@ function fetchAsync(platform) {
 
         case 3:
           _context2.next = 5;
-          return regeneratorRuntime.awrap(fetchAsyncBody(_config2.default.appStore, new _scraper.AppStoreScraper(logger)));
+          return regeneratorRuntime.awrap(fetchAsyncBody(config.appStore, new _scraper.AppStoreScraper(logger)));
 
         case 5:
           return _context2.abrupt('return', _context2.sent);
 
         case 6:
           _context2.next = 8;
-          return regeneratorRuntime.awrap(fetchAsyncBody(_config2.default.googlePlay, new _scraper.GooglePlayScraper(logger)));
+          return regeneratorRuntime.awrap(fetchAsyncBody(config.googlePlay, new _scraper.GooglePlayScraper(logger)));
 
         case 8:
           return _context2.abrupt('return', _context2.sent);
@@ -164,7 +167,7 @@ function fetchAsync(platform) {
 
 function map2Excel(reviewMap, fileNameWithoutExtension) {
   var excel = new _excelGenerator2.default(logger);
-  excel.generate(reviewMap, outDir, fileNameWithoutExtension);
+  excel.generate(reviewMap, config.excel.outDir, fileNameWithoutExtension);
 }
 
 function map2SqliteAsync(reviewMap, tableName) {
@@ -173,7 +176,7 @@ function map2SqliteAsync(reviewMap, tableName) {
     while (1) {
       switch (_context3.prev = _context3.next) {
         case 0:
-          sqlite = new _sqliteArchiver2.default(dbFile, logger);
+          sqlite = new _sqliteArchiver2.default(config.sqlite.dbPath, logger);
           _context3.prev = 1;
           _context3.next = 4;
           return regeneratorRuntime.awrap(sqlite.archiveAsync(reviewMap, tableName));
@@ -203,7 +206,7 @@ function map2MailAsync(reviewMap, mailSubject) {
         case 0:
           mail = new _mailNotifier2.default(logger);
           _context4.next = 3;
-          return regeneratorRuntime.awrap(mail.notifyAsync(reviewMap, mailSubject));
+          return regeneratorRuntime.awrap(mail.notifyAsync(reviewMap, mailSubject, config.mail));
 
         case 3:
         case 'end':
@@ -244,31 +247,25 @@ function runAsync(platform) {
 
         case 8:
           newReviewMap = _context5.sent;
-
-          if (!_config2.default.mail.IsEnabled) {
-            _context5.next = 12;
-            break;
-          }
-
-          _context5.next = 12;
+          _context5.next = 11;
           return regeneratorRuntime.awrap(map2MailAsync(newReviewMap, param.mailSubject));
 
-        case 12:
-          _context5.next = 17;
+        case 11:
+          _context5.next = 16;
           break;
 
-        case 14:
-          _context5.prev = 14;
+        case 13:
+          _context5.prev = 13;
           _context5.t0 = _context5['catch'](0);
 
           logger.error(_context5.t0);
 
-        case 17:
+        case 16:
         case 'end':
           return _context5.stop();
       }
     }
-  }, null, this, [[0, 14]]);
+  }, null, this, [[0, 13]]);
 }
 
 function main() {

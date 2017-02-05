@@ -17,10 +17,6 @@ var _nodemailer = require('nodemailer');
 
 var _nodemailer2 = _interopRequireDefault(_nodemailer);
 
-var _config = require('../config');
-
-var _config2 = _interopRequireDefault(_config);
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -34,20 +30,20 @@ var MailNotifier = function () {
 
   _createClass(MailNotifier, [{
     key: 'sendMailAsync',
-    value: function sendMailAsync(subject, mailBody) {
+    value: function sendMailAsync(subject, mailBody, mailConfig) {
       var smtpConfig, transporter, mailOptions;
       return regeneratorRuntime.async(function sendMailAsync$(_context) {
         while (1) {
           switch (_context.prev = _context.next) {
             case 0:
               smtpConfig = {
-                host: _config2.default.mail.host,
-                port: _config2.default.mail.port
+                host: mailConfig.host,
+                port: mailConfig.port
               };
               transporter = _nodemailer2.default.createTransport(smtpConfig);
               mailOptions = {
-                from: _config2.default.mail.fromAddress,
-                to: _config2.default.mail.toAddress.join(', '),
+                from: mailConfig.fromAddress,
+                to: mailConfig.toAddresses.join(', '),
                 subject: subject,
                 text: mailBody
               };
@@ -93,44 +89,53 @@ var MailNotifier = function () {
     }
   }, {
     key: 'notifyAsync',
-    value: function notifyAsync(reviewMap, subject) {
+    value: function notifyAsync(reviewMap, subject, mailConfig) {
       var mailBody;
       return regeneratorRuntime.async(function notifyAsync$(_context2) {
         while (1) {
           switch (_context2.prev = _context2.next) {
             case 0:
-              if (!(reviewMap.size === 0)) {
+              if (mailConfig.IsEnabled) {
                 _context2.next = 3;
                 break;
               }
 
-              this.logger.info('New review is nothing');
+              this.logger.info('mail option is disabled.');
               return _context2.abrupt('return');
 
             case 3:
-              _context2.prev = 3;
+              if (!(reviewMap.size === 0)) {
+                _context2.next = 6;
+                break;
+              }
+
+              this.logger.info('New review is nothing.');
+              return _context2.abrupt('return');
+
+            case 6:
+              _context2.prev = 6;
               mailBody = this.buildMessage(reviewMap);
 
               this.logger.info('New arrivals!!! [subject] ' + subject + ' [body] ' + mailBody);
-              _context2.next = 8;
-              return regeneratorRuntime.awrap(this.sendMailAsync(subject, mailBody));
+              _context2.next = 11;
+              return regeneratorRuntime.awrap(this.sendMailAsync(subject, mailBody, mailConfig));
 
-            case 8:
-              _context2.next = 13;
+            case 11:
+              _context2.next = 16;
               break;
 
-            case 10:
-              _context2.prev = 10;
-              _context2.t0 = _context2['catch'](3);
+            case 13:
+              _context2.prev = 13;
+              _context2.t0 = _context2['catch'](6);
 
               this.logger.error(_context2.t0);
 
-            case 13:
+            case 16:
             case 'end':
               return _context2.stop();
           }
         }
-      }, null, this, [[3, 10]]);
+      }, null, this, [[6, 13]]);
     }
   }]);
 

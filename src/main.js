@@ -1,5 +1,6 @@
 import 'babel-polyfill';// for async/await
-import config from '../config';
+import yaml from 'js-yaml';
+import fs from 'fs';
 import util from './utility';
 import { AppStoreScraper, GooglePlayScraper } from './scraper';
 import ExcelGenerator from './excel-generator';
@@ -7,8 +8,7 @@ import SqliteArchiver from './sqlite-archiver';
 import MailNotifier from './mail-notifier';
 
 const logger = util.getLogger();
-const outDir = `${__dirname}/../out`;
-const dbFile = `${outDir}/reviews.sqlite`;
+const config = yaml.safeLoad(fs.readFileSync(`${__dirname}/../config.yml`, 'utf8'));
 
 const Platform = {
   APPSTORE: Symbol(),
@@ -47,11 +47,11 @@ async function fetchAsync(platform) {
 
 function map2Excel(reviewMap, fileNameWithoutExtension) {
   const excel = new ExcelGenerator(logger);
-  excel.generate(reviewMap, outDir, fileNameWithoutExtension);
+  excel.generate(reviewMap, config.excel.outDir, fileNameWithoutExtension);
 }
 
 async function map2SqliteAsync(reviewMap, tableName) {
-  const sqlite = new SqliteArchiver(dbFile, logger);
+  const sqlite = new SqliteArchiver(config.sqlite.dbPath, logger);
   try {
     return await sqlite.archiveAsync(reviewMap, tableName);
   } finally {
@@ -61,7 +61,7 @@ async function map2SqliteAsync(reviewMap, tableName) {
 
 async function map2MailAsync(reviewMap, mailSubject) {
   const mail = new MailNotifier(logger);
-  await mail.notifyAsync(reviewMap, mailSubject);
+  await mail.notifyAsync(reviewMap, mailSubject, config.mail);
 }
 
 function getParams(platform) {
@@ -89,9 +89,7 @@ async function runAsync(platform) {
     const param = getParams(platform);
     map2Excel(reviewMap, param.fileNameWithoutExtension);
     const newReviewMap = await map2SqliteAsync(reviewMap, param.tableName);
-    if (config.mail.IsEnabled) {
-      await map2MailAsync(newReviewMap, param.mailSubject);
-    }
+    await map2MailAsync(newReviewMap, param.mailSubject);
   } catch (err) {
     logger.error(err);
   }
