@@ -69,11 +69,15 @@ export default class SlackNotifier {
   buildFields(review, platform) {
     return [
       new Field(review.title, review.content, false),
-      new Field('Rating', Array(Number(review.rating) + 1).join(':star:')),
+      new Field('Rating', this.buildStar(review.rating)),
       new Field('Updated', review.date),
       new Field('Platform', platform),
       new Field('Version', review.version),
     ];
+  }
+
+  buildStar(rating) {
+    return Array(Number(rating) + 1).join(':star:');
   }
 
   selectColor(rating) {

@@ -32,7 +32,7 @@ describe('MailNotifier', () => {
         assert(typeof mailBody === 'string');
       };
       // Act & Assert
-      mailNotifier.notifyAsync(reviewMap, expectedSubject, { IsEnabled: true });
+      mailNotifier.notifyAsync(reviewMap, expectedSubject, { use: true });
     });
 
     it('should not be notified when new review is nothing', () => {
