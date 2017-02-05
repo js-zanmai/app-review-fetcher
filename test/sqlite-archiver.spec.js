@@ -22,13 +22,13 @@ describe('SqliteArchiver', () => {
   });
 
   describe('#initTableIfNotExists()', () => {
-    it('should create the table', () => {
+    it('should be created the table', () => {
       sqliteArchiver.initTableIfNotExists('test');
     });
   });
 
   describe('#archiveAsync()', () => {
-    it('should inserted the review', async function() {
+    it('should be inserted the review', async function() {
       this.timeout(5000);
       // Arrange
       const tableName = 'dummyTable';

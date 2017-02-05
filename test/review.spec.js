@@ -3,7 +3,7 @@ import Review from '../src/review';
 
 describe('review', () => {
   describe('#constructor()', () => {
-    it('プロパティに値がセットされていること。', () => {
+    it('shoul be initialized', () => {
       const id = 'id';
       const updated = '2016/01/01';
       const title = 'title';
