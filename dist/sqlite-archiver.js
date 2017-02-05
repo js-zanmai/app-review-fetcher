@@ -38,7 +38,8 @@ var SqliteArchiver = function () {
       var _this = this;
 
       this.db.serialize(function () {
-        _this.db.run('CREATE TABLE IF NOT EXISTS ' + tableName + '(' + 'app_name TEXT, ' + 'title TEXT, ' + 'content TEXT, ' + 'author TEXT, ' + 'rating INTEGER, ' + 'date TEXT, ' + 'version TEXT)');
+        _this.db.run('CREATE TABLE IF NOT EXISTS ' + tableName + '(' + 'app_name TEXT NOT NULL, ' + 'title TEXT NOT NULL, ' + 'content TEXT NOT NULL, ' + 'author TEXT NOT NULL, ' + 'rating INTEGER NOT NULL, ' + 'date TEXT NOT NULL, ' + 'version TEXT NOT NULL);');
+        _this.db.run('CREATE INDEX IF NOT EXISTS ' + tableName + '_app_name_idx ON ' + tableName + ' (app_name);');
       });
     }
   }, {

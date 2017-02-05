@@ -14,14 +14,15 @@ export default class SqliteArchiver {
     this.db.serialize(() => {
       this.db.run(
         `CREATE TABLE IF NOT EXISTS ${tableName}(` +
-        'app_name TEXT, ' +
-        'title TEXT, ' +
-        'content TEXT, ' +
-        'author TEXT, ' +
-        'rating INTEGER, ' +
-        'date TEXT, ' +
-        'version TEXT)'
+        'app_name TEXT NOT NULL, ' +
+        'title TEXT NOT NULL, ' +
+        'content TEXT NOT NULL, ' +
+        'author TEXT NOT NULL, ' +
+        'rating INTEGER NOT NULL, ' +
+        'date TEXT NOT NULL, ' +
+        'version TEXT NOT NULL);'
       );
+      this.db.run(`CREATE INDEX IF NOT EXISTS ${tableName}_app_name_idx ON ${tableName} (app_name);`);
     });
   }
 
