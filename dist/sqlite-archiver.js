@@ -19,6 +19,10 @@ var _ramda = require('ramda');
 
 var _ramda2 = _interopRequireDefault(_ramda);
 
+var _utility = require('./utility');
+
+var _utility2 = _interopRequireDefault(_utility);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -72,19 +76,6 @@ var SqliteArchiver = function () {
           return stmt.run(appName, x.title, x.content, x.author, parseInt(x.rating, 10), x.date, x.version);
         });
         stmt.finalize();
-      });
-    }
-
-    // 稀に古いレビューが返ってくることがあったため、DBに存在していない、かつ、直近３日以内のレビューを新着レビューと判定する。
-
-  }, {
-    key: 'extractRecentReviews',
-    value: function extractRecentReviews(reviews) {
-      var now = new Date();
-      var threeDaysAgo = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 3);
-      return reviews.filter(function (review) {
-        var date = new Date(review.date);
-        return date.getTime() >= threeDaysAgo.getTime();
       });
     }
   }, {
@@ -161,7 +152,7 @@ var SqliteArchiver = function () {
                 this.logger.info('New review is nothing. [Table Name] ' + tableName + ' [App name] ' + appName);
               } else {
                 this.insertReviews(newReviews, appName, tableName);
-                recentReviews = this.extractRecentReviews(newReviews);
+                recentReviews = _utility2.default.extractRecentReviews(newReviews);
 
                 if (!_ramda2.default.isEmpty(recentReviews)) {
                   newReviewMap.set(appName, recentReviews);

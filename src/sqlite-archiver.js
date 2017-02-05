@@ -1,6 +1,7 @@
 import 'babel-polyfill';// for async/await
 import sqlite3 from 'sqlite3';
 import R from 'ramda';
+import util from './utility';
 
 export default class SqliteArchiver {
 
@@ -52,16 +53,6 @@ export default class SqliteArchiver {
     }); 
   }
 
-  // 稀に古いレビューが返ってくることがあったため、DBに存在していない、かつ、直近３日以内のレビューを新着レビューと判定する。
-  extractRecentReviews(reviews) {
-    const now = new Date();
-    const threeDaysAgo = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 3);
-    return reviews.filter((review) => {
-      const date = new Date(review.date);
-      return date.getTime() >= threeDaysAgo.getTime();
-    });
-  }
-
   async searchNewReviewsAsync(reviews, appName, tableName) {
     const savedReviews = await this.selectAllReviewAsync(appName, tableName);
     const isSameReview = (saved, review) => (review.date === saved.date) && (review.title === saved.title) && (review.author === saved.author);
@@ -82,7 +73,7 @@ export default class SqliteArchiver {
           this.logger.info(`New review is nothing. [Table Name] ${tableName} [App name] ${appName}`);
         } else {
           this.insertReviews(newReviews, appName, tableName);
-          const recentReviews = this.extractRecentReviews(newReviews);
+          const recentReviews = util.extractRecentReviews(newReviews);
           if (!R.isEmpty(recentReviews)) {
             newReviewMap.set(appName, recentReviews);
           }

@@ -1,5 +1,6 @@
 import assert from 'power-assert';
 import util from '../src/utility';
+import Review from '../src/review';
 
 describe('utility', () => {
   describe('#zeroPadding()', () => {
@@ -20,6 +21,30 @@ describe('utility', () => {
       const logger = util.getLogger();
       assert(logger !== undefined);
       assert(logger !== null);
+    });
+  });
+
+  describe('#extractRecentReviews()', () => {
+    it('shoud be extracted recent reviews', () => {
+      const dateToStr = (date) => `${date.getFullYear()}/${util.zeroPadding(date.getMonth() + 1)}/${util.zeroPadding(date.getDate())}`;
+      const id = 'id';
+      const title = 'title';
+      const content = 'content';
+      const rating = 5;
+      const version = 1.0;
+      const author = 'author';
+      const date = new Date();
+      const updated1 = dateToStr(date);
+      date.setDate(date.getDate() - 2); // 2日前までのレビューはメール通知の対象
+      const updated2 = dateToStr(date);
+      date.setDate(date.getDate() - 3); // 3日前のレビューはフィルタリングされる
+      const updated3 = dateToStr(date);
+      const r1 = new Review(id, updated1, title, content, rating, version, author);
+      const r2 = new Review(id, updated2, title, content, rating, version, author);
+      const r3 = new Review(id, updated3, title, content, rating, version, author);
+      const reviews = [r1, r2, r3];
+      const extracted = util.extractRecentReviews(reviews);
+      assert(extracted.length === 2);
     });
   });
 });

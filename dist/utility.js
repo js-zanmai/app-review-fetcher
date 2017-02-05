@@ -41,6 +41,19 @@ var Utility = function () {
         setTimeout(resolve, ms);
       });
     }
+
+    // 稀に古いレビューが返ってくることがあったため、DBに存在していない、かつ、直近３日以内のレビューを新着レビューと判定する。
+
+  }, {
+    key: 'extractRecentReviews',
+    value: function extractRecentReviews(reviews) {
+      var now = new Date();
+      var threeDaysAgo = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 3);
+      return reviews.filter(function (review) {
+        var date = new Date(review.date);
+        return date.getTime() >= threeDaysAgo.getTime();
+      });
+    }
   }]);
 
   return Utility;
