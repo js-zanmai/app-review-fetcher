@@ -90,7 +90,10 @@ var SlackNotifier = function () {
   }, {
     key: 'buildAttachments',
     value: function buildAttachments(appName, review, platform) {
-      return [new Attachment('\u300C' + appName + '\u300D\u306E\u65B0\u7740\u30EC\u30D3\u30E5\u30FC', this.selectColor(review.rating), this.buildFields(review, platform))];
+      var pretext = '\u300C' + appName + '\u300D\u306E\u65B0\u7740\u30EC\u30D3\u30E5\u30FC';
+      var color = this.selectColor(review.rating);
+      var fields = this.buildFields(review, platform);
+      return [new Attachment(pretext, color, fields)];
     }
   }, {
     key: 'buildFields',

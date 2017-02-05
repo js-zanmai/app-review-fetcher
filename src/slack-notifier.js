@@ -63,7 +63,10 @@ export default class SlackNotifier {
   }
 
   buildAttachments(appName, review, platform) {
-    return [new Attachment(`「${appName}」の新着レビュー`, this.selectColor(review.rating), this.buildFields(review, platform))];
+    const pretext = `「${appName}」の新着レビュー`;
+    const color = this.selectColor(review.rating);
+    const fields = this.buildFields(review, platform);
+    return [new Attachment(pretext, color, fields)];
   }
 
   buildFields(review, platform) {
