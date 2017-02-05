@@ -152,7 +152,7 @@ var SqliteArchiver = function () {
                 this.logger.info('New review is nothing. [Table Name] ' + tableName + ' [App name] ' + appName);
               } else {
                 this.insertReviews(newReviews, appName, tableName);
-                recentReviews = _utility2.default.extractRecentReviews(newReviews);
+                recentReviews = _utility2.default.filterRecentReviews(newReviews);
 
                 if (!_ramda2.default.isEmpty(recentReviews)) {
                   newReviewMap.set(appName, recentReviews);

@@ -171,52 +171,47 @@ var GooglePlayScraper = function (_Scraper2) {
   _createClass(GooglePlayScraper, [{
     key: 'fetchAsync',
     value: function fetchAsync(id) {
-      var allReviews, maxCountPerPage, page, tmpReviews;
+      var allReviews, page, maxCountPerPage, tmpReviews;
       return regeneratorRuntime.async(function fetchAsync$(_context3) {
         while (1) {
           switch (_context3.prev = _context3.next) {
             case 0:
               this.logger.info('Start fetching from GooglePlay. [id] = ' + id);
               allReviews = [];
-              maxCountPerPage = 40; // 1リクエストあたり最大40件取得できる。
-
               page = 0;
+              maxCountPerPage = 40; // 1リクエストあたり最大40件取得できる。
 
             case 4:
               if (!true) {
-                _context3.next = 17;
-                break;
-              }
-
-              _context3.t0 = Array;
-              _context3.next = 8;
-              return regeneratorRuntime.awrap(this.fetchBodyAsync(id, page));
-
-            case 8:
-              _context3.t1 = _context3.sent;
-              tmpReviews = _context3.t0.from.call(_context3.t0, _context3.t1);
-
-              tmpReviews.forEach(function (x) {
-                return allReviews.push(x);
-              });
-              page++;
-
-              if (!(tmpReviews.length < maxCountPerPage)) {
                 _context3.next = 15;
                 break;
               }
 
-              this.logger.info('End fetching from GooglePlay. [id] = ' + id + ', [page] = ' + page);
-              return _context3.abrupt('break', 17);
+              _context3.next = 7;
+              return regeneratorRuntime.awrap(this.fetchBodyAsync(id, page));
 
-            case 15:
+            case 7:
+              tmpReviews = _context3.sent;
+
+              allReviews = allReviews.concat(tmpReviews);
+              page++;
+
+              if (!(tmpReviews.length < maxCountPerPage)) {
+                _context3.next = 13;
+                break;
+              }
+
+              this.logger.info('End fetching from GooglePlay. [id] = ' + id + ', [page] = ' + page);
+              return _context3.abrupt('break', 15);
+
+            case 13:
               _context3.next = 4;
               break;
 
-            case 17:
+            case 15:
               return _context3.abrupt('return', allReviews);
 
-            case 18:
+            case 16:
             case 'end':
               return _context3.stop();
           }

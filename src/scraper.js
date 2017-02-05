@@ -90,13 +90,13 @@ class GooglePlayScraper extends Scraper {
 
   async fetchAsync(id) {
     this.logger.info(`Start fetching from GooglePlay. [id] = ${id}`);
-    const allReviews = [];
-    const maxCountPerPage = 40;// 1リクエストあたり最大40件取得できる。
+    let allReviews = [];
     let page = 0;
+    const maxCountPerPage = 40;// 1リクエストあたり最大40件取得できる。
     
     while(true) {
-      const tmpReviews = Array.from(await this.fetchBodyAsync(id, page));
-      tmpReviews.forEach(x => allReviews.push(x));
+      const tmpReviews = await this.fetchBodyAsync(id, page);
+      allReviews = allReviews.concat(tmpReviews);
       page++;
 
       if (tmpReviews.length < maxCountPerPage) {

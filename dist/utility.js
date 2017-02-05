@@ -42,11 +42,11 @@ var Utility = function () {
       });
     }
 
-    // 稀に古いレビューが返ってくることがあったため、DBに存在していない、かつ、直近３日以内のレビューを新着レビューと判定する。
+    // 稀に古いレビューが返ってくることがあったため、直近３日以内のレビューを新着レビューと判定する。
 
   }, {
-    key: 'extractRecentReviews',
-    value: function extractRecentReviews(reviews) {
+    key: 'filterRecentReviews',
+    value: function filterRecentReviews(reviews) {
       var now = new Date();
       var threeDaysAgo = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 3);
       return reviews.filter(function (review) {

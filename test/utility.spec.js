@@ -24,8 +24,8 @@ describe('utility', () => {
     });
   });
 
-  describe('#extractRecentReviews()', () => {
-    it('shoud be extracted recent reviews', () => {
+  describe('#filterRecentReviews()', () => {
+    it('shoud be filtered recent reviews', () => {
       const dateToStr = (date) => `${date.getFullYear()}/${util.zeroPadding(date.getMonth() + 1)}/${util.zeroPadding(date.getDate())}`;
       const id = 'id';
       const title = 'title';
@@ -43,7 +43,7 @@ describe('utility', () => {
       const r2 = new Review(id, updated2, title, content, rating, version, author);
       const r3 = new Review(id, updated3, title, content, rating, version, author);
       const reviews = [r1, r2, r3];
-      const extracted = util.extractRecentReviews(reviews);
+      const extracted = util.filterRecentReviews(reviews);
       assert(extracted.length === 2);
     });
   });

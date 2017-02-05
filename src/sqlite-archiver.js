@@ -73,7 +73,7 @@ export default class SqliteArchiver {
           this.logger.info(`New review is nothing. [Table Name] ${tableName} [App name] ${appName}`);
         } else {
           this.insertReviews(newReviews, appName, tableName);
-          const recentReviews = util.extractRecentReviews(newReviews);
+          const recentReviews = util.filterRecentReviews(newReviews);
           if (!R.isEmpty(recentReviews)) {
             newReviewMap.set(appName, recentReviews);
           }

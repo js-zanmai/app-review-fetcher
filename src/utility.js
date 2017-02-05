@@ -18,7 +18,7 @@ export default class Utility {
   }
 
   // 稀に古いレビューが返ってくることがあったため、直近３日以内のレビューを新着レビューと判定する。
-  static extractRecentReviews(reviews) {
+  static filterRecentReviews(reviews) {
     const now = new Date();
     const threeDaysAgo = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 3);
     return reviews.filter((review) => {
