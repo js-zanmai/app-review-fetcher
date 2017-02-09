@@ -80,7 +80,7 @@ class Application {
     this.excel.generate(reviewMap, this.config.excel.outDir, kind.service + 'Reviews');
     const newReviewMap = await this.sqlite.archiveAsync(reviewMap, kind.service.toLowerCase());
     await this.mail.notifyAsync(newReviewMap, kind.service, this.config.mail);
-    this.slack.notify(newReviewMap, platform, this.config.slack);
+    this.slack.notify(newReviewMap, kind.platform, this.config.slack);
   }
 
   async main() {

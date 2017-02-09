@@ -229,7 +229,7 @@ var Application = function () {
               return regeneratorRuntime.awrap(this.mail.notifyAsync(newReviewMap, kind.service, this.config.mail));
 
             case 10:
-              this.slack.notify(newReviewMap, platform, this.config.slack);
+              this.slack.notify(newReviewMap, kind.platform, this.config.slack);
 
             case 11:
             case 'end':
