@@ -3,6 +3,12 @@
 Node.js application to scrape mobile application data from the App store or Google Play store.
 
 ## Usage
+```
+node index.js
+```
+
+## Dev
+
 ### Installation
 1. npm install -g babel eslint mocha  
 2. npm install 
@@ -21,7 +27,3 @@ If you want to measure the coverage,
 npm run test-cov
 ```
 
-## Run
-```
-node dist/main.js
-```

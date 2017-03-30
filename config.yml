@@ -1,0 +1,22 @@
+---
+appStore:
+- id: '982091927'
+  name: セブン−イレブン マルチコピー
+googlePlay:
+- id: jp.co.fujixerox.mcopy
+  name: セブン−イレブン マルチコピー
+mail:
+  use: false
+  host: localhost
+  port: 25
+  fromAddress: ''
+  toAddresses:
+  - ''
+slack:
+  use: false
+  webhook: https://xxxxxxxxxx
+  channel: general
+excel:
+  outDir: /Users/xxxxxx/app-review-fetcher/out
+sqlite:
+  dbPath: /Users/xxxxxx/app-review-fetcher/out/reviews.sqlite

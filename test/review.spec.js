@@ -1,9 +1,9 @@
-import { expect } from 'chai';
+import assert from 'power-assert';
 import Review from '../src/review';
 
 describe('review', () => {
   describe('#constructor()', () => {
-    it('プロパティに値がセットされていること。', () => {
+    it('shoul be initialized', () => {
       const id = 'id';
       const updated = '2016/01/01';
       const title = 'title';
@@ -12,13 +12,13 @@ describe('review', () => {
       const version = 1.0;
       const author = 'author';
       const review = new Review(id, updated, title, content, rating, version, author);
-      expect(review.id).to.equal(id);
-      expect(review.date).to.equal(updated);
-      expect(review.title).to.equal(title);
-      expect(review.content).to.equal(content);
-      expect(review.rating).to.equal(rating);
-      expect(review.version).to.equal(version);
-      expect(review.author).to.equal(author);
+      assert(review.id === id);
+      assert(review.date === updated);
+      assert(review.title === title);
+      assert(review.content === content);
+      assert(review.rating === rating);
+      assert(review.version === version);
+      assert(review.author === author);
     });
   });
 });
