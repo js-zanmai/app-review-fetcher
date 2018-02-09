@@ -124,7 +124,7 @@ export default class ExcelGenerator {
     .then(() => {
       this.logger.info(`Finished generate ${absPath}`);
     })
-    .catch( (error) => {
+    .catch((error) => {
       this.logger.error(error);
     });
   }
