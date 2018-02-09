@@ -30,7 +30,7 @@ var Utility = function () {
     key: 'getLogger',
     value: function getLogger() {
       _log4js2.default.configure(__dirname + '/../log4js.json');
-      return _log4js2.default.getLogger('fileAppender');
+      return _log4js2.default.getLogger('default');
     }
   }, {
     key: 'sleep',

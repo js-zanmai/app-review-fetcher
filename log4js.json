@@ -1,6 +1,6 @@
 {
-  "appenders": [
-    {
+  "appenders": {
+    "filelogger": { 
       "type": "file",
       "category": "fileAppender",
       "filename": "logs/app_review_fetcher.log",
@@ -11,13 +11,18 @@
         "pattern": "[%d] [%p] - %m"
       }
     },
-    {
+    "consolelogger": {
       "type": "console",
       "layout": {
         "type": "pattern",
         "pattern": "[%d] [%p] - %m"
       }
     }
-  ],
-  "levels": {"fileAppender": "ALL"}
+  },
+  "categories": {
+    "default": {
+      "appenders": ["filelogger", "consolelogger"],
+      "level": "debug"
+    } 
+  }
 }

@@ -7,8 +7,8 @@ export default class Utility {
   }
   
   static getLogger() {
-    log4js.configure(`${__dirname}/../log4js.json`); 
-    return log4js.getLogger('fileAppender');
+    log4js.configure(`${__dirname}/../log4js.json`);
+    return log4js.getLogger('default');
   }
 
   static sleep(ms = 1000) {
