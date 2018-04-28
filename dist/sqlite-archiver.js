@@ -47,13 +47,13 @@ var SqliteArchiver = function () {
       });
     }
   }, {
-    key: 'selectAllReviewAsync',
-    value: function selectAllReviewAsync(appName, tableName) {
+    key: 'selectRecentReviewAsync',
+    value: function selectRecentReviewAsync(appName, tableName, limit) {
       var _this2 = this;
 
       return new Promise(function (resolve, reject) {
         _this2.db.serialize(function () {
-          _this2.db.all('SELECT * FROM ' + tableName + ' WHERE app_name = $appName', { $appName: appName }, function (err, res) {
+          _this2.db.all('SELECT * FROM ' + tableName + ' WHERE app_name = $appName ORDER BY date DESC LIMIT ' + limit, { $appName: appName }, function (err, res) {
             if (err) {
               _this2.logger.error(err);
               reject(err);
@@ -81,15 +81,16 @@ var SqliteArchiver = function () {
   }, {
     key: 'searchNewReviewsAsync',
     value: function searchNewReviewsAsync(reviews, appName, tableName) {
-      var savedReviews, isSameReview, curriedIsSameReview, isNewReview;
+      var limit, savedReviews, isSameReview, curriedIsSameReview, isNewReview;
       return regeneratorRuntime.async(function searchNewReviewsAsync$(_context) {
         while (1) {
           switch (_context.prev = _context.next) {
             case 0:
-              _context.next = 2;
-              return regeneratorRuntime.awrap(this.selectAllReviewAsync(appName, tableName));
+              limit = 50;
+              _context.next = 3;
+              return regeneratorRuntime.awrap(this.selectRecentReviewAsync(appName, tableName, limit));
 
-            case 2:
+            case 3:
               savedReviews = _context.sent;
 
               isSameReview = function isSameReview(saved, review) {
@@ -104,7 +105,7 @@ var SqliteArchiver = function () {
 
               return _context.abrupt('return', _ramda2.default.filter(isNewReview, reviews));
 
-            case 7:
+            case 8:
             case 'end':
               return _context.stop();
           }

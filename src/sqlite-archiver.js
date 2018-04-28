@@ -27,10 +27,10 @@ export default class SqliteArchiver {
     });
   }
 
-  selectAllReviewAsync(appName, tableName) {
+  selectRecentReviewAsync(appName, tableName, limit) {
     return new Promise((resolve, reject) => {
       this.db.serialize(() => {
-        this.db.all(`SELECT * FROM ${tableName} WHERE app_name = $appName`,
+        this.db.all(`SELECT * FROM ${tableName} WHERE app_name = $appName ORDER BY date DESC LIMIT ${limit}`,
           { $appName: appName },
           (err, res) => {
             if (err) {
@@ -54,7 +54,8 @@ export default class SqliteArchiver {
   }
 
   async searchNewReviewsAsync(reviews, appName, tableName) {
-    const savedReviews = await this.selectAllReviewAsync(appName, tableName);
+    const limit = 50;
+    const savedReviews = await this.selectRecentReviewAsync(appName, tableName, limit);
     const isSameReview = (saved, review) => (review.date === saved.date) && (review.title === saved.title) && (review.author === saved.author);
     const curriedIsSameReview = R.curry(isSameReview);
     const isNewReview = x => !R.any(curriedIsSameReview(x))(savedReviews);
