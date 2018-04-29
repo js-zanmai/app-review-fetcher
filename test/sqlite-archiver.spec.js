@@ -52,9 +52,9 @@ describe('SqliteArchiver', () => {
       reviewMap.set(app2, [review2]);
       // Act
       const newReviewMap = await sqliteArchiver.archiveAsync(reviewMap, tableName);
-      
-      const reviewList1 = await sqliteArchiver.selectAllReviewAsync(app1, tableName);
-      const reviewList2 = await sqliteArchiver.selectAllReviewAsync(app2, tableName);
+      const limit = 5;
+      const reviewList1 = await sqliteArchiver.selectRecentReviewAsync(app1, tableName, limit);
+      const reviewList2 = await sqliteArchiver.selectRecentReviewAsync(app2, tableName, limit);
       // Assert
       assert(newReviewMap.size === reviewMap.size);
       assert(reviewList1[0].title === title1);
