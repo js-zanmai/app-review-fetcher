@@ -18,7 +18,7 @@
     "cheerio-httpcli": "^0.7.3",
     "exceljs": "^1.4.2",
     "js-yaml": "^3.11.0",
-    "log4js": "^2.5.3",
+    "log4js": "^3.0.0",
     "nodemailer": "^4.6.4",
     "ramda": "^0.25.0",
     "request": "^2.85.0",
