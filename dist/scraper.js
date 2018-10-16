@@ -103,11 +103,6 @@ var AppStoreScraper = function (_Scraper) {
                     var lastPage = $('link[rel=last]').attr('href');
 
                     $('feed > entry').each(function (i, element) {
-                      // 最初のentryタグは関係ないのでスキップする。
-                      if (i === 0) {
-                        return;
-                      }
-
                       if (!_ramda2.default.contains(id, _ramda2.default.map(function (x) {
                         return x.id;
                       }, reviews))) {
