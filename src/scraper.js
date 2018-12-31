@@ -24,7 +24,7 @@ class AppStoreScraper extends Scraper {
 
   async fetchAsync(id) {
     this.logger.info(`Start fetching from AppStore. [id] = ${id}`);
-    
+
     return new Promise((resolve, reject) => {
       const RSS = `https://itunes.apple.com/jp/rss/customerreviews/id=${id}/xml`;
       const reviews = [];
@@ -36,13 +36,8 @@ class AppStoreScraper extends Scraper {
           const firstPage = $('link[rel=first]').attr('href');
           const nextPage = $('link[rel=next]').attr('href');
           const lastPage = $('link[rel=last]').attr('href');
-          
-          $('feed > entry').each((i, element) => {
-            // 最初のentryタグは関係ないのでスキップする。
-            if (i === 0) {
-              return;
-            }
 
+          $('feed > entry').each((i, element) => {
             if (!R.contains(id, R.map(x => x.id, reviews))) {
               reviews.push(this.parse($(element)));
             }
@@ -51,7 +46,7 @@ class AppStoreScraper extends Scraper {
           if (done || !nextPage || (firstPage === lastPage)) {
             return reviews;
           }
-          
+
           // 次のページが最終ページであればフラグを立てておき、クロールを止めるようにする。
           done = nextPage === lastPage;
           // linkタグをクロールすることで過去のレビューを再帰的に取得する。
@@ -93,8 +88,8 @@ class GooglePlayScraper extends Scraper {
     let allReviews = [];
     let page = 0;
     const maxCountPerPage = 40;// 1リクエストあたり最大40件取得できる。
-    
-    while(true) {
+
+    while (true) {
       const tmpReviews = await this.fetchBodyAsync(id, page);
       allReviews = allReviews.concat(tmpReviews);
       page++;
@@ -103,8 +98,8 @@ class GooglePlayScraper extends Scraper {
         this.logger.info(`End fetching from GooglePlay. [id] = ${id}, [page] = ${page}`);
         break;
       }
-    } 
-    
+    }
+
     return allReviews;
   }
 
@@ -122,7 +117,7 @@ class GooglePlayScraper extends Scraper {
       },
       json: true
     };
-    
+
     const responseBody = await this.doRequestAsync(params);
     const content = JSON.parse(responseBody.slice(6));
     const targetHtml = content[0][2];
@@ -139,7 +134,7 @@ class GooglePlayScraper extends Scraper {
           resolve(body);
         }
       });
-    }); 
+    });
   }
 
   parse($) {
@@ -163,7 +158,7 @@ class GooglePlayScraper extends Scraper {
 
 }
 
-export { 
+export {
   AppStoreScraper,
   GooglePlayScraper
 };
