@@ -19,7 +19,7 @@
     "exceljs": "^1.4.2",
     "js-yaml": "^3.11.0",
     "log4js": "^3.0.0",
-    "nodemailer": "^4.6.4",
+    "nodemailer": "^5.0.0",
     "ramda": "^0.26.0",
     "request": "^2.85.0",
     "slack-node": "^0.1.8",
